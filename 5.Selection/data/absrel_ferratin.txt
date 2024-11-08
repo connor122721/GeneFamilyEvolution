@@ -1,0 +1,124 @@
+
+Analysis Description
+--------------------
+aBSREL (Adaptive branch-site random effects likelihood) uses an adaptive
+random effects branch-site model framework to test whether each branch
+has evolved under positive selection, using a procedure which infers an
+optimal number of rate categories per branch. v2.2 adds support for
+multiple-hit models. v2.3 adds support for SRV. v2.5 adds support for
+ancestral state reconstruction, identification of sites contributing to
+selection signal, and some diagnostics. 
+
+- __Requirements__: in-frame codon alignment and a phylogenetic tree
+
+- __Citation__:  Less Is More: An Adaptive Branch-Site Random Effects Model for
+Efficient Detection of Episodic Diversifying Selection (2015). Mol Biol
+Evol 32 (5): 1342-1353. 
+
+- __Written by__: Sergei L Kosakovsky Pond, Ben Murrell, Steven Weaver and Temple iGEM /
+UCSD viral evolution group
+
+- __Contact Information__: spond@temple.edu
+
+- __Analysis Version__: 2.5
+
+
+>code => Universal
+/home/datamonkey/datamonkey-js-server/production/app/absrel/output/65c4f841f17fd757eef0fe53.tre
+/home/datamonkey/datamonkey-js-server/production/app/absrel/output/65c4f841f17fd757eef0fe53.tre
+
+>Loaded a multiple sequence alignment with **19** sequences, **169** codons, and **1** partitions from `/home/datamonkey/datamonkey-js-server/production/app/absrel/output/65c4f841f17fd757eef0fe53`
+
+>branches => FG
+
+>multiple-hits => None
+
+>srv => No
+
+
+### * Selected 35 branches for testing: `XP_057365187_1, XP_032794002_2, XP_045035353_1, Node9, KAI9559675_1, Node8, Node6, XP_046463363_1, XP_046631317_1, Node13, Node5, XP_057368553_1, KAI9558722_1, Node17, XP_045028264_1, Node16, Node4, CAH0104245_1, CAH0111408_1, Node22, DAPHNIA00076_RB, XP_046646292_1, Node26, XP_046459329_1, Node25, Node21, Node3, CAH0112501_1, Node2, XP_046638731_1, Node1, XP_046439764_1, XP_046638733_1, XP_046638734_1, Node33`
+
+
+### Obtaining branch lengths and nucleotide substitution biases under the nucleotide GTR model
+
+>kill-zero-lengths => Yes
+* Log(L) = -2894.66, AIC-c =  5875.72 (43 estimated parameters)
+* 1 partition. Total tree length by partition (subs/site)  0.934
+
+### Fitting the baseline model with a single dN/dS class per branch, and no site-to-site variation. 
+* Log(L) = -2664.64, AIC-c =  5501.85 (84 estimated parameters)
+* Branch-level non-synonymous/synonymous rate ratio distribution has median  0.19, and 95% of the weight in  0.00 -  1.44
+
+### Determining the optimal number of rate classes per branch using a step up procedure
+
+|              Branch               |  Length  |  Rates   |     Max. dN/dS     |    Log(L)     |     AIC-c     |Best AIC-c so far|
+|-----------------------------------|----------|----------|--------------------|---------------|---------------|-----------------|
+|              Node16               |   0.11   |    2     |    0.77 (23.90%)   |   -2663.79    |    5504.37    |     5501.85     |
+|          XP_057365187_1           |   0.10   |    2     |   15.74 ( 2.39%)   |   -2659.21    |    5495.21    |     5495.21     |
+|          XP_057365187_1           |   0.10   |    3     |   16.03 ( 2.20%)   |   -2659.27    |    5499.57    |     5495.21     |
+|              Node13               |   0.09   |    2     |    8.86 ( 1.10%)   |   -2658.64    |    5498.30    |     5495.21     |
+|           CAH0112501_1            |   0.07   |    2     |   78.30 ( 2.08%)   |   -2649.22    |    5479.46    |     5479.46     |
+|           CAH0112501_1            |   0.07   |    3     |   77.90 ( 2.03%)   |   -2649.26    |    5483.77    |     5479.46     |
+|               Node2               |   0.06   |    2     |   29.76 ( 1.88%)   |   -2641.18    |    5467.60    |     5467.60     |
+|               Node2               |   0.06   |    3     |   30.35 ( 1.85%)   |   -2641.18    |    5471.86    |     5467.60     |
+|              Node25               |   0.06   |    2     |    4.75 ( 7.76%)   |   -2636.94    |    5463.37    |     5463.37     |
+|              Node25               |   0.06   |    3     |    6.16 ( 5.39%)   |   -2636.96    |    5467.66    |     5463.37     |
+|               Node6               |   0.06   |    2     |    0.00 ( 0.00%)   |   -2636.94    |    5467.62    |     5463.37     |
+|              Node22               |   0.06   |    2     |    0.21 (78.96%)   |   -2636.94    |    5467.61    |     5463.37     |
+|           KAI9559675_1            |   0.04   |    2     |   25.48 ( 1.01%)   |   -2633.34    |    5460.42    |     5460.42     |
+|           KAI9559675_1            |   0.04   |    3     |   25.75 ( 0.98%)   |   -2633.35    |    5464.69    |     5460.42     |
+|              Node21               |   0.04   |    2     |    1.98 ( 5.49%)   |   -2633.30    |    5464.59    |     5460.42     |
+|               Node8               |   0.04   |    2     |    0.08 ( 0.47%)   |   -2633.34    |    5464.65    |     5460.42     |
+|          XP_057368553_1           |   0.04   |    2     |    0.19 ( 8.18%)   |   -2633.34    |    5464.67    |     5460.42     |
+|               Node5               |   0.03   |    2     |    0.51 (22.83%)   |   -2633.32    |    5464.62    |     5460.42     |
+|          XP_045028264_1           |   0.03   |    2     |    6.42 (23.35%)   |   -2632.57    |    5463.13    |     5460.42     |
+|               Node4               |   0.03   |    2     |    0.14 (36.37%)   |   -2633.33    |    5464.65    |     5460.42     |
+|               Node3               |   0.03   |    2     |    0.35 (76.50%)   |   -2633.34    |    5464.66    |     5460.42     |
+|           CAH0104245_1            |   0.03   |    2     |   62.58 ( 3.42%)   |   -2622.46    |    5442.90    |     5442.90     |
+|           CAH0104245_1            |   0.03   |    3     |   62.71 ( 3.42%)   |   -2622.46    |    5447.15    |     5442.90     |
+|           KAI9558722_1            |   0.02   |    2     |    0.17 (79.70%)   |   -2622.46    |    5447.15    |     5442.90     |
+|              Node17               |   0.02   |    2     |    0.21 ( 7.27%)   |   -2622.42    |    5447.07    |     5442.90     |
+|               Node9               |   0.01   |    2     |    0.20 (95.51%)   |   -2622.45    |    5447.14    |     5442.90     |
+|          XP_032794002_2           |   0.01   |    2     |    0.13 (60.86%)   |   -2622.46    |    5447.15    |     5442.90     |
+|               Node1               |   0.01   |    2     |    0.50 ( 9.06%)   |   -2622.46    |    5447.15    |     5442.90     |
+|           CAH0111408_1            |   0.01   |    2     |    1.97 (46.76%)   |   -2622.46    |    5447.16    |     5442.90     |
+|          DAPHNIA00076_RB          |   0.01   |    2     |    1.00 (67.78%)   |   -2622.46    |    5447.15    |     5442.90     |
+|              Node33               |   0.01   |    2     |    0.00 ( 5.00%)   |   -2622.46    |    5447.15    |     5442.90     |
+|          XP_046463363_1           |   0.00   |    2     |    0.00 ( 0.64%)   |   -2622.46    |    5447.15    |     5442.90     |
+|          XP_045035353_1           |   0.00   |    2     |    0.75 (47.64%)   |   -2622.46    |    5447.15    |     5442.90     |
+|          XP_046439764_1           |   0.00   |    2     |    0.00 ( 0.64%)   |   -2622.46    |    5447.15    |     5442.90     |
+|              Node26               |   0.00   |    2     |    0.00 ( 5.00%)   |   -2622.46    |    5447.15    |     5442.90     |
+|          XP_046638733_1           |   0.00   |    2     |    0.00 ( 0.00%)   |   -2622.46    |    5447.15    |     5442.90     |
+|          XP_046631317_1           |   0.00   |    2     |    0.00 ( 5.00%)   |   -2622.46    |    5447.15    |     5442.90     |
+|          XP_046638731_1           |   0.00   |    2     |    0.00 ( 3.69%)   |   -2622.46    |    5447.15    |     5442.90     |
+|          XP_046638734_1           |   0.00   |    2     |    0.30 (13.82%)   |   -2622.46    |    5447.15    |     5442.90     |
+|          XP_046646292_1           |   0.00   |    2     |    0.26 ( 3.72%)   |   -2622.46    |    5447.15    |     5442.90     |
+|          XP_046459329_1           |   0.00   |    2     |    0.27 ( 2.00%)   |   -2622.46    |    5447.15    |     5442.90     |
+
+### Rate class analyses summary
+*  29 branches with **1** rate classes
+*  6 branches with **2** rate classes
+
+### Improving parameter estimates of the adaptive rate class model
+* Log(L) = -2605.23, AIC-c =  5408.45 (96 estimated parameters)
+
+### Testing selected branches for selection
+
+|              Branch               |  Rates   |     Max. dN/dS     | Sites @ EBF>=100 |      Test LRT      |Uncorrected p-value |
+|-----------------------------------|----------|--------------------|------------------|--------------------|--------------------|
+|              Node16               |     1    |   0.14 (100.00%)   |       N/A        |        0.00        |       1.00000      |
+|          XP_057365187_1           |     2    |   10.36 ( 2.38%)   |          3       |        2.19        |       0.12819      |
+|              Node13               |     1    |   0.21 (100.00%)   |       N/A        |        0.00        |       1.00000      |
+|           CAH0112501_1            |     2    |   49.49 ( 2.00%)   |          3       |        7.16        |       0.00983      |
+|               Node2               |     2    |   15.70 ( 2.09%)   |          2       |        5.36        |       0.02470      |
+|              Node25               |     2    |    3.28 ( 7.98%)   |          7       |        1.82        |       0.15648      |
+|               Node6               |     1    |   0.00 (100.00%)   |       N/A        |        0.00        |       1.00000      |
+|              Node22               |     1    |   0.17 (100.00%)   |       N/A        |        0.00        |       1.00000      |
+|           KAI9559675_1            |     2    |   16.78 ( 0.95%)   |          1       |        1.79        |       0.15855      |
+|              Node21               |     1    |   0.15 (100.00%)   |       N/A        |        0.00        |       1.00000      |
+|               Node8               |     1    |   0.02 (100.00%)   |       N/A        |        0.00        |       1.00000      |
+|          XP_057368553_1           |     1    |   0.14 (100.00%)   |       N/A        |        0.00        |       1.00000      |
+|               Node5               |     1    |   0.46 (100.00%)   |       N/A        |        0.00        |       1.00000      |
+|          XP_045028264_1           |     1    |   0.92 (100.00%)   |       N/A        |        0.00        |       1.00000      |
+|               Node4               |     1    |   0.10 (100.00%)   |       N/A        |        0.00        |       1.00000      |
+|               Node3               |     1    |   0.27 (100.00%)   |       N/A        |        0.00        |       1.00000      |

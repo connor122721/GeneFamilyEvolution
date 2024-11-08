@@ -1,0 +1,18 @@
+# BUSCO version is: 5.4.7 
+# The lineage dataset is: arthropoda_odb10 (Creation date: 2020-09-10, number of genomes: 90, number of BUSCOs: 1013)
+# Summarized benchmarking in BUSCO notation for file /scratch/csm6hg/genomes/proteins_species/primary_transcripts/sinensis.protein.faa
+# BUSCO was run in mode: proteins
+
+	***** Results: *****
+
+	C:97.3%[S:94.7%,D:2.6%],F:0.8%,M:1.9%,n:1013	   
+	985	Complete BUSCOs (C)			   
+	959	Complete and single-copy BUSCOs (S)	   
+	26	Complete and duplicated BUSCOs (D)	   
+	8	Fragmented BUSCOs (F)			   
+	20	Missing BUSCOs (M)			   
+	1013	Total BUSCO groups searched		   
+
+Dependencies and versions:
+	hmmsearch: 3.1
+	busco: 5.4.7

@@ -1,0 +1,18 @@
+# BUSCO version is: 5.4.7 
+# The lineage dataset is: arthropoda_odb10 (Creation date: 2020-09-10, number of genomes: 90, number of BUSCOs: 1013)
+# Summarized benchmarking in BUSCO notation for file /scratch/csm6hg/genomes/proteins_species/primary_transcripts/pulex.euro.protein.faa
+# BUSCO was run in mode: proteins
+
+	***** Results: *****
+
+	C:93.1%[S:81.6%,D:11.5%],F:2.5%,M:4.4%,n:1013	   
+	943	Complete BUSCOs (C)			   
+	827	Complete and single-copy BUSCOs (S)	   
+	116	Complete and duplicated BUSCOs (D)	   
+	25	Fragmented BUSCOs (F)			   
+	45	Missing BUSCOs (M)			   
+	1013	Total BUSCO groups searched		   
+
+Dependencies and versions:
+	hmmsearch: 3.1
+	busco: 5.4.7

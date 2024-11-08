@@ -1,0 +1,47 @@
+GOTermID	Name	pval	LogSize
+GO:0003684	damaged DNA binding	-20.74548508	4.956475787
+GO:0050660	flavin adenine dinucleotide binding	-6.382662084	5.761721913
+GO:0004520	DNA endonuclease activity	-6.286915807	4.899984563
+GO:0051879	Hsp90 protein binding	-5.875601863	3.860218185
+GO:0016877	"ligase activity, forming carbon-sulfur bonds"	-5.402391163	5.012984775
+GO:0003724	RNA helicase activity	-5.330223759	5.055527403
+GO:0005544	calcium-dependent phospholipid binding	-5.330223759	4.374381698
+GO:0050151	oleate hydratase activity	-5.330223759	3.193958978
+GO:0016614	"oxidoreductase activity, acting on CH-OH group of donors"	-5.045668987	5.771329473
+GO:0140097	"catalytic activity, acting on DNA"	-4.594281745	5.983069872
+GO:0016661	"oxidoreductase activity, acting on other nitrogenous compounds as donors"	-4.425150419	4.567002827
+GO:0098809	nitrite reductase activity	-4.425150419	4.098609119
+GO:0008094	"ATP-dependent activity, acting on DNA"	-4.259389828	5.552245881
+GO:0005506	iron ion binding	-4.053803663	5.737364418
+GO:0004864	protein phosphatase inhibitor activity	-3.897334549	4.312388949
+GO:0019212	phosphatase inhibitor activity	-3.897334549	4.317603742
+GO:0005507	copper ion binding	-3.897334549	5.041578208
+GO:0031072	heat shock protein binding	-3.679710611	4.599566511
+GO:0051537	"2 iron, 2 sulfur cluster binding"	-3.517893192	5.274058505
+GO:0016836	hydro-lyase activity	-3.295610663	5.539032165
+GO:0016835	carbon-oxygen lyase activity	-3.13011785	5.662800315
+GO:0003854	3-beta-hydroxy-delta5-steroid dehydrogenase activity	-3.254921095	3.985336642
+GO:0033764	"steroid dehydrogenase activity, acting on the CH-OH group of donors, NAD or NADP as acceptor"	-3.254921095	4.103872108
+GO:0016229	steroid dehydrogenase activity	-3.254921095	4.397696736
+GO:0071949	FAD binding	-3.237533805	5.307063668
+GO:0004497	monooxygenase activity	-3.165900102	5.657554909
+GO:0016620	"oxidoreductase activity, acting on the aldehyde or oxo group of donors, NAD or NADP as acceptor"	-2.978522558	5.313590955
+GO:0016778	diphosphotransferase activity	-2.799475389	4.607648
+GO:0008061	chitin binding	-2.719554582	4.654138022
+GO:0016705	"oxidoreductase activity, acting on paired donors, with incorporation or reduction of molecular oxygen"	-2.719554582	5.711373561
+GO:0004843	cysteine-type deubiquitinase activity	-2.718205793	4.968758381
+GO:0101005	deubiquitinase activity	-2.718205793	4.984545315
+GO:0016758	hexosyltransferase activity	-2.718205793	5.531404825
+GO:0020037	heme binding	-2.693639411	5.731088918
+GO:0004484	mRNA guanylyltransferase activity	-2.650005002	3.451325808
+GO:0008192	RNA guanylyltransferase activity	-2.32673291	3.73479983
+GO:0046906	tetrapyrrole binding	-2.54670378	5.780894547
+GO:0016616	"oxidoreductase activity, acting on the CH-OH group of donors, NAD or NADP as acceptor"	-2.53230726	5.700642289
+GO:0004386	helicase activity	-2.367692985	5.671676295
+GO:0070568	guanylyltransferase activity	-2.32673291	4.432616584
+GO:0004016	adenylate cyclase activity	-2.320522553	4.430429832
+GO:0008242	omega peptidase activity	-2.320522553	4.307132191
+GO:0008276	protein methyltransferase activity	-2.108879151	5.02547791
+GO:0051287	NAD binding	-2.108305619	5.539564092
+GO:0008134	transcription factor binding	-2.056551321	4.614179827
+GO:0005248	voltage-gated sodium channel activity	-2.041016135	3.80685803

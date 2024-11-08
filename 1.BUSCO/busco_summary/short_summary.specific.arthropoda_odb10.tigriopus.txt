@@ -1,0 +1,18 @@
+# BUSCO version is: 5.4.7 
+# The lineage dataset is: arthropoda_odb10 (Creation date: 2020-09-10, number of genomes: 90, number of BUSCOs: 1013)
+# Summarized benchmarking in BUSCO notation for file /scratch/csm6hg/genomes/proteins_species/primary_transcripts/tigriopus.protein.faa
+# BUSCO was run in mode: proteins
+
+	***** Results: *****
+
+	C:91.8%[S:90.5%,D:1.3%],F:2.6%,M:5.6%,n:1013	   
+	930	Complete BUSCOs (C)			   
+	917	Complete and single-copy BUSCOs (S)	   
+	13	Complete and duplicated BUSCOs (D)	   
+	26	Fragmented BUSCOs (F)			   
+	57	Missing BUSCOs (M)			   
+	1013	Total BUSCO groups searched		   
+
+Dependencies and versions:
+	hmmsearch: 3.1
+	busco: 5.4.7

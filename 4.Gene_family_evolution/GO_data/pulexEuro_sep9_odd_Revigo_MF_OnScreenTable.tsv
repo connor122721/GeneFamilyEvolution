@@ -1,0 +1,42 @@
+GOTermID	Name	odd	pval	LogSize
+GO:0000175	3'-5'-RNA exonuclease activity	5.043757803	-2.453449131	4.548831473
+GO:0140359	ABC-type transporter activity	3.377516386	-5.806428329	5.548860928
+GO:0003779	actin binding	2.540449438	-2.65949578	5.314859061
+GO:0022804	active transmembrane transporter activity	2.18968335	-4.123356672	6.028757049
+GO:0043531	ADP binding	3.24241573	-2.681529381	4.886101378
+GO:0016887	ATP hydrolysis activity	1.56003021	-2.02408739	6.082174775
+GO:0042626	ATPase-coupled transmembrane transporter activity	2.680880045	-6.01200194	5.732643005
+GO:0015085	calcium ion transmembrane transporter activity	3.921060883	-3.513667624	4.859768558
+GO:0005516	calmodulin binding	3.705617978	-2.02408739	4.758533422
+GO:0016248	channel inhibitor activity	4.778296866	-2.355145929	3.227886705
+GO:0016247	channel regulator activity	4.778296866	-2.355145929	4.007534418
+GO:0008092	cytoskeletal protein binding	2.561235955	-7.119052843	5.60166895
+GO:0071949	FAD binding	3.670659317	-3.723741633	5.307063668
+GO:0050660	flavin adenine dinucleotide binding	2.623077894	-2.65949578	5.761721913
+GO:0070568	guanylyltransferase activity	5.043757803	-2.453449131	4.432616584
+GO:0020037	heme binding	3.076138001	-7.548214232	5.731088918
+GO:0022890	inorganic cation transmembrane transporter activity	3.587353574	-3.121302863	5.841340071
+GO:0005315	inorganic phosphate transmembrane transporter activity	6.484831461	-2.65949578	4.702723414
+GO:0016866	intramolecular transferase activity	3.990665514	-2.208611173	5.352107234
+GO:0016868	"intramolecular transferase activity, phosphotransferases"	8.253421859	-3.934043912	4.804425686
+GO:0008200	ion channel inhibitor activity	4.778296866	-2.355145929	3.202760687
+GO:0099106	ion channel regulator activity	4.778296866	-2.355145929	3.99237676
+GO:0005506	iron ion binding	3.325554595	-9.261568447	5.737364418
+GO:0016829	lyase activity	2.147842267	-2.584166453	6.106446569
+GO:0008017	microtubule binding	2.98417023	-4.970586739	5.124419444
+GO:0004497	monooxygenase activity	3.546392205	-8.825992221	5.657554909
+GO:0004484	mRNA guanylyltransferase activity	5.340449438	-2.589650696	3.451325808
+GO:0050151	oleate hydratase activity	6.484831461	-2.23577194	3.193958978
+GO:0016705	"oxidoreductase activity, acting on paired donors, with incorporation or reduction of molecular oxygen"	3.337780899	-8.087533282	5.711373561
+GO:0008241	peptidyl-dipeptidase activity	5.706651685	-4.549245271	3.539327064
+GO:0004535	poly(A)-specific ribonuclease activity	5.043757803	-2.453449131	4.033021445
+GO:0015399	primary active transmembrane transporter activity	2.622281574	-5.797433574	5.844059456
+GO:0004532	RNA exonuclease activity	5.043757803	-2.453449131	4.744832581
+GO:0016896	"RNA exonuclease activity, producing 5'-phosphomonoesters"	5.043757803	-2.453449131	4.740299515
+GO:0008192	RNA guanylyltransferase activity	5.043757803	-2.453449131	3.73479983
+GO:0030507	spectrin binding	7.981331029	-4.465094491	3.418135498
+GO:0005200	structural constituent of cytoskeleton	9.727247191	-8.366275446	4.66118776
+GO:0005198	structural molecule activity	2.151066045	-7.246894743	6.059660338
+GO:0046906	tetrapyrrole binding	2.962206964	-7.135107088	5.780894547
+GO:0004803	transposase activity	4.014419476	-3.628087248	4.956384563
+GO:0015631	tubulin binding	2.554630575	-3.723741633	5.22133598
