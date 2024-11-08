@@ -1,16 +1,9 @@
 
 # Investigation of gene family evolution among _Daphnia_
 This repository contains a comprehensive analysis of gene family dynamics within several species of _Daphnia_, freshwater microcrustaceans that serve as valuable model systems in evolutionary genetics. This study examines how gene family expansion and contraction contribute to ecological adaptation and evolutionary innovation across _Daphnia_ species. We apply comparative genomics approaches to explore the forces driving gene family evolution, focusing on key functional categories like spermatogenesis and stress response genes, and evaluate selection pressures shaping these gene families. Our findings provide insights into the interplay between gene family turnover and adaptive processes, demonstrating both general patterns and species-specific dynamics in gene family evolution within _Daphnia_.
-## Table of Contents
-- [1.BUSCO](#1.BUSCO)
-- [2.Orthologs](#2.Orthologs)
-- [3.Phylogenomics](#3.Phylogenomics)
-- [4.Gene_family_evolution](#4.Gene_family_evolution)
-- [5.Selection](#5.Selection)
 
 ## BUSCO
 BUSCO (Benchmarking Universal Single-Copy Orthologs) is used to assess the completeness of the _Daphnia_ genome assemblies and annotations by evaluating conserved single-copy orthologs. 
-This helps ensure the quality and robustness of the genomic data before further analysis.
 
 ## Orthologs
 Identifying orthologous genes across species is essential for understanding evolutionary relationships.
