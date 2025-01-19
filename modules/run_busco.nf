@@ -14,8 +14,8 @@ process runBusco {
 
     output:
         val "${params.out}/busco_results/", emit: busco_dir
-        path "*/short_summary*txt"
-        path "*/run_arthropoda_odb10/full_table.tsv"
+        path "short_summary*txt"
+        path "full_table_${species}.tsv"
 
     script:
         """
@@ -31,6 +31,10 @@ process runBusco {
             -m proteins \\
             --offline \\
             --download_path ${params.busco_data}
+
+        # Rename full_table.tsv to include species name
+        mv ${species}/run_arthropoda_odb10/full_table.tsv full_table_${species}.tsv
+        mv ${species}/short_summary.specific.arthropoda_odb10.${species}.txt .
         """
 }
 
@@ -49,6 +53,7 @@ process plotBusco {
     script:
         """
         module load apptainer/1.3.4
+        module load gcc/11.4.0 openmpi/4.1.4 R/4.3.1
 
         apptainer run ${params.sif_dir}/busco_v5.4.7_cv1.sif \\
             python3 ${params.scripts_dir}/generate_plot.py \\

@@ -33,6 +33,7 @@ process extract_longest_transcript {
     output:
         val "${params.out}/longest_orf/primary_transcripts/", emit: output_dir
         path "primary_transcripts/${species}*faa", emit: output_faa
+        val "${species}", emit: species
 
     script:
         """
@@ -48,6 +49,8 @@ process extract_longest_transcript {
 // Module imports
 include { runBusco; plotBusco } from './modules/run_busco.nf'
 include { runOrthoFinder } from './modules/run_orthofinder.nf'
+include { annotateOrthogroups; annotateGO } from './modules/annotate_og.nf'
+include { extractBuscoGenes } from './modules/extract_busco_genes.nf'
 
 // Define the workflow
 workflow {
@@ -55,17 +58,20 @@ workflow {
     // Extract longest transcript
     def orf = extract_longest_transcript(proteomes)
 
+    // Annotate GO terms
+    def annot_go = annotateGO(orf.species)
+
     // Run BUSCO on proteomes
     def busco = runBusco(proteomes)
 
     // Collect unique BUSCO result directories
     busco.busco_dir
-        .collect()
         .unique()
+        .collect()
         .set { busco_results }
     
     // Plot BUSCO results after all BUSCO processes are complete
-    plotBusco(busco_results)
+    // plotBusco(busco_results)
 
     // Collect all longest transcripts paths into a list after all extract_longest_transcript processes are complete
     orf.output_dir
@@ -73,5 +79,11 @@ workflow {
         .set { longest_transcripts_dirs }
 
     // Run OrthoFinder on longest transcripts
-    runOrthoFinder(longest_transcripts_dirs)
+    def orthofinder = runOrthoFinder(longest_transcripts_dirs)
+
+    // Annotate Orthogroups and generate plots
+    def annot_of = annotateOrthogroups(orthofinder)
+
+    // Extract BUSCO genes
+    def busco_genes = extractBuscoGenes(proteomes)
 }
