@@ -18,11 +18,11 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="description" content="Nextflow workflow report for run id [loving_shockley]">
+  <meta name="description" content="Nextflow workflow report for run id [insane_brazil]">
   <meta name="author" content="Paolo Di Tommaso, Phil Ewels">
   <link rel="icon" type="image/png" href="https://www.nextflow.io/img/favicon.png" />
 
-  <title>[loving_shockley] Nextflow Workflow Report</title>
+  <title>[insane_brazil] Nextflow Workflow Report</title>
 
   <style type="text/css">
   /*!
@@ -137,7 +137,7 @@ table.DTCR_clonedTable.dataTable{position:absolute !important;background-color:r
         <li class="nav-item"><a class="nav-link" href="#tasks">Tasks</a></li>
       </ul>
       <span class="navbar-text">
-        [loving_shockley]
+        [insane_brazil]
       </span>
     </div>
   </nav>
@@ -146,27 +146,54 @@ table.DTCR_clonedTable.dataTable{position:absolute !important;background-color:r
     <div class="container">
 
       <h1 class="display-3">Nextflow workflow report</h1>
-      <h2 class="text-muted mb-4"><samp>[loving_shockley]</samp> </h2>
+      <h2 class="text-muted mb-4"><samp>[insane_brazil]</samp> </h2>
 
       
-          <div class="alert alert-success mb-4">
-              Workflow execution completed successfully!
+          <div class="alert alert-danger mb-4">
+              <h4>Workflow execution completed unsuccessfully!</h4>
+              <p>The exit status of the task that caused the workflow execution to fail was: <code>null</code>.</p>
+              <p>The full error message was:</p>
+              <pre>Error executing process > 'runBusco (1)'
+
+Caused by:
+  java.lang.reflect.UndeclaredThrowableException
+
+Source block:
+  """
+          module load apptainer/1.3.4
+  
+          # Run BUSCO with local data
+          apptainer run ${params.sif_dir}/busco_v5.4.7_cv1.sif \\
+              busco \\
+              -i ${params.rawpro}/${samp} \\
+              -c ${params.threads} \\
+              -l ${params.busco_lineage} \\
+              -o ${species} \\
+              -m proteins \\
+              --offline \\
+              --download_path ${params.busco_data}
+          """
+
+Work dir:
+  /sfs/gpfs/tardis/project/berglandlab/connor/GeneFamilyEvolution/work/e9/f46db02384e768d27e6c20d1cc714f
+
+Tip: when you have fixed the problem you can continue the execution adding the option `-resume` to the run command line</pre>
           </div>
       
 
       <dl>
         <dt>Run times</dt>
         <dd>
-          <span id="workflow_start">17-Jan-2025 22:19:52</span> - <span id="workflow_complete">17-Jan-2025 22:20:09</span>
-          (<span id="completed_fromnow"></span>duration: <strong>16.6s</strong>)
+          <span id="workflow_start">18-Jan-2025 22:35:31</span> - <span id="workflow_complete">18-Jan-2025 22:35:35</span>
+          (<span id="completed_fromnow"></span>duration: <strong>3.2s</strong>)
         </dd>
 
         <dl>
           <div class="progress" style="height: 1.6rem; margin: 1.2rem auto; border-radius: 0.20rem;">
-            <div style="width: 100.0%" class="progress-bar bg-success" data-toggle="tooltip" data-placement="top" title="11 tasks succeeded"><span class="text-truncate">&nbsp; 11 succeeded &nbsp;</span></div>
+            <div style="width: 0.0%" class="progress-bar bg-success" data-toggle="tooltip" data-placement="top" title="0 tasks succeeded"><span class="text-truncate">&nbsp; 0 succeeded &nbsp;</span></div>
             <div style="width: 0.0%" class="progress-bar bg-secondary" data-toggle="tooltip" data-placement="top" title="0 tasks were cached"><span class="text-truncate">&nbsp; 0 cached &nbsp;</span></div>
             <div style="width: 0.0%" class="progress-bar bg-warning" data-toggle="tooltip" data-placement="top" title="0 tasks reported and error and were ignored"><span class="text-truncate">&nbsp; 0 ignored &nbsp;</span></div>
-            <div style="width: 0.0%" class="progress-bar bg-danger" data-toggle="tooltip" data-placement="top" title="0 tasks failed"><span class="text-truncate">&nbsp; 0 failed &nbsp;</span></div>
+            <div style="width: 100.0%" class="progress-bar bg-danger" data-toggle="tooltip" data-placement="top" title="1 tasks failed"><span class="text-truncate">&nbsp; 1 failed &nbsp;</span></div>
           </div>
         </dl>
 
@@ -194,17 +221,23 @@ table.DTCR_clonedTable.dataTable{position:absolute !important;background-color:r
 
         
           <dt class="col-sm-3">Script ID</dt>
-          <dd class="col-sm-9"><code>dd729b230ad01d901cdc8e972a4507fd</code></dd>
+          <dd class="col-sm-9"><code>930a007ac267114de20aaa982d0d08e4</code></dd>
         
 
         <dt class="col-sm-3">Workflow session</dt>
-        <dd class="col-sm-9"><code>8973e937-66a9-4990-a4f4-60ff82e3a9e6</code></dd>
+        <dd class="col-sm-9"><code>194c3d1f-70c5-41db-8f90-48abbfddcf0e</code></dd>
 
         
 
         <dt class="col-sm-3">Workflow profile</dt>
         <dd class="col-sm-9">slurm</dd>
 
+        
+        <dt class="col-sm-3">Workflow container</dt>
+        <dd class="col-sm-9"><samp>apptainer</samp></dd>
+
+        <dt class="col-sm-3">Container engine</dt>
+        <dd class="col-sm-9"><samp>-</samp></dd>
         
 
         <dt class="col-sm-3">Nextflow version</dt>
@@ -1030,7 +1063,7 @@ $(function() {
 
   // Nextflow report data
   window.data = { "trace":[
-{"task_id":"2","hash":"21\/849650","native_id":"1426699","process":"extract_longest_transcript","module":"-","container":"-","tag":"-","name":"extract_longest_transcript (2)","status":"COMPLETED","exit":"0","submit":"1737170395486","start":"1737170399614","complete":"1737170399617","duration":"4131","realtime":"675","%cpu":"88.5","%mem":"0.0","rss":"9134080","vmem":"58998784","peak_rss":"9134080","peak_vmem":"59076608","rchar":"37372293","wchar":"15925314","syscr":"5174","syscw":"27","read_bytes":"0","write_bytes":"0","attempt":"1","workdir":"\/sfs\/gpfs\/tardis\/project\/berglandlab\/connor\/GeneFamilyEvolution\/work\/21\/8496507c729f1bbd0117b5fdf1bacc","script":"\n        module load miniforge\/24.3.0-py3.11\n        source activate base\n\n        # Extract longest transcript\n        python \/home\/csm6hg\/phd_software\/OrthoFinder_source\/tools\/primary_transcript.py \\\n            caenorhabditis.protein.faa\n        ","scratch":"-","queue":"-","cpus":"8","memory":"10737418240","disk":"-","time":"-","env":"-","error_action":"-","vol_ctxt":"421","inv_ctxt":"0","hostname":"-"},{"task_id":"1","hash":"4f\/421141","native_id":"1426700","process":"extract_longest_transcript","module":"-","container":"-","tag":"-","name":"extract_longest_transcript (1)","status":"COMPLETED","exit":"0","submit":"1737170395611","start":"1737170399687","complete":"1737170404613","duration":"9002","realtime":"2507","%cpu":"39.8","%mem":"0.0","rss":"51798016","vmem":"83042304","peak_rss":"51798016","peak_vmem":"83042304","rchar":"62560607","wchar":"11968039","syscr":"8248","syscw":"26","read_bytes":"0","write_bytes":"0","attempt":"1","workdir":"\/sfs\/gpfs\/tardis\/project\/berglandlab\/connor\/GeneFamilyEvolution\/work\/4f\/4211410a4516b90ae3c86ce6a600cc","script":"\n        module load miniforge\/24.3.0-py3.11\n        source activate base\n\n        # Extract longest transcript\n        python \/home\/csm6hg\/phd_software\/OrthoFinder_source\/tools\/primary_transcript.py \\\n            anopheles.protein.faa\n        ","scratch":"-","queue":"-","cpus":"8","memory":"10737418240","disk":"-","time":"-","env":"-","error_action":"-","vol_ctxt":"330","inv_ctxt":"3","hostname":"-"},{"task_id":"3","hash":"23\/e9d3ff","native_id":"1426701","process":"extract_longest_transcript","module":"-","container":"-","tag":"-","name":"extract_longest_transcript (3)","status":"COMPLETED","exit":"0","submit":"1737170395638","start":"1737170399798","complete":"1737170399800","duration":"4162","realtime":"2246","%cpu":"20.4","%mem":"0.0","rss":"45703168","vmem":"74362880","peak_rss":"45703168","peak_vmem":"74362880","rchar":"28055199","wchar":"9327327","syscr":"4036","syscw":"26","read_bytes":"0","write_bytes":"0","attempt":"1","workdir":"\/sfs\/gpfs\/tardis\/project\/berglandlab\/connor\/GeneFamilyEvolution\/work\/23\/e9d3fffdf2fa1daa27071c71670430","script":"\n        module load miniforge\/24.3.0-py3.11\n        source activate base\n\n        # Extract longest transcript\n        python \/home\/csm6hg\/phd_software\/OrthoFinder_source\/tools\/primary_transcript.py \\\n            carinata.protein.faa\n        ","scratch":"-","queue":"-","cpus":"8","memory":"10737418240","disk":"-","time":"-","env":"-","error_action":"-","vol_ctxt":"424","inv_ctxt":"2","hostname":"-"},{"task_id":"4","hash":"b2\/823043","native_id":"1426702","process":"extract_longest_transcript","module":"-","container":"-","tag":"-","name":"extract_longest_transcript (4)","status":"COMPLETED","exit":"0","submit":"1737170395703","start":"1737170399810","complete":"1737170399811","duration":"4108","realtime":"611","%cpu":"89.4","%mem":"0.0","rss":"8220672","vmem":"50200576","peak_rss":"8220672","peak_vmem":"50237440","rchar":"23857139","wchar":"9167757","syscr":"3524","syscw":"26","read_bytes":"0","write_bytes":"0","attempt":"1","workdir":"\/sfs\/gpfs\/tardis\/project\/berglandlab\/connor\/GeneFamilyEvolution\/work\/b2\/8230439f2bad0830bdc256a7b72695","script":"\n        module load miniforge\/24.3.0-py3.11\n        source activate base\n\n        # Extract longest transcript\n        python \/home\/csm6hg\/phd_software\/OrthoFinder_source\/tools\/primary_transcript.py \\\n            galeata.protein.faa\n        ","scratch":"-","queue":"-","cpus":"8","memory":"10737418240","disk":"-","time":"-","env":"-","error_action":"-","vol_ctxt":"348","inv_ctxt":"1","hostname":"-"},{"task_id":"5","hash":"49\/d7b766","native_id":"1426703","process":"extract_longest_transcript","module":"-","container":"-","tag":"-","name":"extract_longest_transcript (5)","status":"COMPLETED","exit":"0","submit":"1737170395727","start":"1737170399888","complete":"1737170399889","duration":"4162","realtime":"668","%cpu":"86.7","%mem":"0.0","rss":"8503296","vmem":"50479104","peak_rss":"8503296","peak_vmem":"50479104","rchar":"44064852","wchar":"12067841","syscr":"5990","syscw":"26","read_bytes":"163840","write_bytes":"0","attempt":"1","workdir":"\/sfs\/gpfs\/tardis\/project\/berglandlab\/connor\/GeneFamilyEvolution\/work\/49\/d7b766c64c18a31841864a1365e5db","script":"\n        module load miniforge\/24.3.0-py3.11\n        source activate base\n\n        # Extract longest transcript\n        python \/home\/csm6hg\/phd_software\/OrthoFinder_source\/tools\/primary_transcript.py \\\n            magna.protein.faa\n        ","scratch":"-","queue":"-","cpus":"8","memory":"10737418240","disk":"-","time":"-","env":"-","error_action":"-","vol_ctxt":"416","inv_ctxt":"0","hostname":"-"},{"task_id":"6","hash":"98\/ce98a6","native_id":"1426704","process":"extract_longest_transcript","module":"-","container":"-","tag":"-","name":"extract_longest_transcript (6)","status":"COMPLETED","exit":"0","submit":"1737170395914","start":"1737170399899","complete":"1737170404623","duration":"8709","realtime":"2831","%cpu":"23.3","%mem":"0.0","rss":"7299072","vmem":"49659904","peak_rss":"7299072","peak_vmem":"49659904","rchar":"51478228","wchar":"8634004","syscr":"6896","syscw":"26","read_bytes":"0","write_bytes":"0","attempt":"1","workdir":"\/sfs\/gpfs\/tardis\/project\/berglandlab\/connor\/GeneFamilyEvolution\/work\/98\/ce98a65d3de67a14e68ff6ae2dc01c","script":"\n        module load miniforge\/24.3.0-py3.11\n        source activate base\n\n        # Extract longest transcript\n        python \/home\/csm6hg\/phd_software\/OrthoFinder_source\/tools\/primary_transcript.py \\\n            melanogaster.protein.faa\n        ","scratch":"-","queue":"-","cpus":"8","memory":"10737418240","disk":"-","time":"-","env":"-","error_action":"-","vol_ctxt":"308","inv_ctxt":"0","hostname":"-"},{"task_id":"7","hash":"97\/b4ecb3","native_id":"1426705","process":"extract_longest_transcript","module":"-","container":"-","tag":"-","name":"extract_longest_transcript (7)","status":"COMPLETED","exit":"0","submit":"1737170395939","start":"1737170399900","complete":"1737170399901","duration":"3962","realtime":"791","%cpu":"88.0","%mem":"0.0","rss":"9199616","vmem":"58994688","peak_rss":"9199616","peak_vmem":"58994688","rchar":"46153597","wchar":"14037595","syscr":"6246","syscw":"27","read_bytes":"0","write_bytes":"0","attempt":"1","workdir":"\/sfs\/gpfs\/tardis\/project\/berglandlab\/connor\/GeneFamilyEvolution\/work\/97\/b4ecb3729b8525168ddff357ef9129","script":"\n        module load miniforge\/24.3.0-py3.11\n        source activate base\n\n        # Extract longest transcript\n        python \/home\/csm6hg\/phd_software\/OrthoFinder_source\/tools\/primary_transcript.py \\\n            penaeus.protein.faa\n        ","scratch":"-","queue":"-","cpus":"8","memory":"10737418240","disk":"-","time":"-","env":"-","error_action":"-","vol_ctxt":"416","inv_ctxt":"3","hostname":"-"},{"task_id":"8","hash":"29\/b1d006","native_id":"1426706","process":"extract_longest_transcript","module":"-","container":"-","tag":"-","name":"extract_longest_transcript (8)","status":"COMPLETED","exit":"0","submit":"1737170395979","start":"1737170399988","complete":"1737170399990","duration":"4011","realtime":"566","%cpu":"89.1","%mem":"0.0","rss":"10715136","vmem":"60305408","peak_rss":"10715136","peak_vmem":"60305408","rchar":"26344471","wchar":"10411431","syscr":"3828","syscw":"26","read_bytes":"0","write_bytes":"0","attempt":"1","workdir":"\/sfs\/gpfs\/tardis\/project\/berglandlab\/connor\/GeneFamilyEvolution\/work\/29\/b1d0060f6ef7df4e829950b5a94c92","script":"\n        module load miniforge\/24.3.0-py3.11\n        source activate base\n\n        # Extract longest transcript\n        python \/home\/csm6hg\/phd_software\/OrthoFinder_source\/tools\/primary_transcript.py \\\n            pulex.euro.protein.faa\n        ","scratch":"-","queue":"-","cpus":"8","memory":"10737418240","disk":"-","time":"-","env":"-","error_action":"-","vol_ctxt":"663","inv_ctxt":"1","hostname":"-"},{"task_id":"9","hash":"4c\/9f94a4","native_id":"1426707","process":"extract_longest_transcript","module":"-","container":"-","tag":"-","name":"extract_longest_transcript (9)","status":"COMPLETED","exit":"0","submit":"1737170396002","start":"1737170399999","complete":"1737170400000","duration":"3998","realtime":"673","%cpu":"87.0","%mem":"0.0","rss":"9166848","vmem":"59129856","peak_rss":"9166848","peak_vmem":"59129856","rchar":"49145496","wchar":"11346849","syscr":"6610","syscw":"26","read_bytes":"0","write_bytes":"0","attempt":"1","workdir":"\/sfs\/gpfs\/tardis\/project\/berglandlab\/connor\/GeneFamilyEvolution\/work\/4c\/9f94a49ec35638026eb12454a11f51","script":"\n        module load miniforge\/24.3.0-py3.11\n        source activate base\n\n        # Extract longest transcript\n        python \/home\/csm6hg\/phd_software\/OrthoFinder_source\/tools\/primary_transcript.py \\\n            pulex.nam.protein.faa\n        ","scratch":"-","queue":"-","cpus":"8","memory":"10737418240","disk":"-","time":"-","env":"-","error_action":"-","vol_ctxt":"416","inv_ctxt":"1","hostname":"-"},{"task_id":"10","hash":"0c\/6d855b","native_id":"1426708","process":"extract_longest_transcript","module":"-","container":"-","tag":"-","name":"extract_longest_transcript (10)","status":"COMPLETED","exit":"0","submit":"1737170396254","start":"1737170400089","complete":"1737170404632","duration":"8378","realtime":"669","%cpu":"86.7","%mem":"0.0","rss":"9080832","vmem":"58990592","peak_rss":"9080832","peak_vmem":"59068416","rchar":"45213610","wchar":"11983553","syscr":"6130","syscw":"26","read_bytes":"0","write_bytes":"0","attempt":"1","workdir":"\/sfs\/gpfs\/tardis\/project\/berglandlab\/connor\/GeneFamilyEvolution\/work\/0c\/6d855b077b6184c4cf56fb6d7e0a9f","script":"\n        module load miniforge\/24.3.0-py3.11\n        source activate base\n\n        # Extract longest transcript\n        python \/home\/csm6hg\/phd_software\/OrthoFinder_source\/tools\/primary_transcript.py \\\n            pulicaria.protein.faa\n        ","scratch":"-","queue":"-","cpus":"8","memory":"10737418240","disk":"-","time":"-","env":"-","error_action":"-","vol_ctxt":"414","inv_ctxt":"0","hostname":"-"},{"task_id":"11","hash":"51\/236d29","native_id":"1426709","process":"extract_longest_transcript","module":"-","container":"-","tag":"-","name":"extract_longest_transcript (11)","status":"COMPLETED","exit":"0","submit":"1737170396278","start":"1737170400092","complete":"1737170404641","duration":"8363","realtime":"611","%cpu":"87.2","%mem":"0.0","rss":"9523200","vmem":"59408384","peak_rss":"9523200","peak_vmem":"59408384","rchar":"24439359","wchar":"9458867","syscr":"3594","syscw":"26","read_bytes":"0","write_bytes":"0","attempt":"1","workdir":"\/sfs\/gpfs\/tardis\/project\/berglandlab\/connor\/GeneFamilyEvolution\/work\/51\/236d2974becf79aa92a8a02d77faed","script":"\n        module load miniforge\/24.3.0-py3.11\n        source activate base\n\n        # Extract longest transcript\n        python \/home\/csm6hg\/phd_software\/OrthoFinder_source\/tools\/primary_transcript.py \\\n            sinensis.protein.faa\n        ","scratch":"-","queue":"-","cpus":"8","memory":"10737418240","disk":"-","time":"-","env":"-","error_action":"-","vol_ctxt":"440","inv_ctxt":"4","hostname":"-"}], "summary":[{"cpuUsage":{"mean":8.93,"min":2.55,"q1":7.91,"q2":10.88,"q3":11.03,"max":11.18,"minLabel":"extract_longest_transcript (3)","maxLabel":"extract_longest_transcript (4)","q1Label":"extract_longest_transcript (1)","q2Label":"extract_longest_transcript (9)","q3Label":"extract_longest_transcript (7)"},"process":"extract_longest_transcript","mem":{"mean":16213085.09,"min":7299072,"q1":8792064,"q2":9166848,"q3":10119168,"max":51798016,"minLabel":"extract_longest_transcript (6)","maxLabel":"extract_longest_transcript (1)","q1Label":"extract_longest_transcript (5)","q2Label":"extract_longest_transcript (9)","q3Label":"extract_longest_transcript (11)"},"memUsage":{"mean":0.15,"min":0.07,"q1":0.08,"q2":0.09,"q3":0.09,"max":0.48,"minLabel":"extract_longest_transcript (6)","maxLabel":"extract_longest_transcript (1)","q1Label":"extract_longest_transcript (5)","q2Label":"extract_longest_transcript (9)","q3Label":"extract_longest_transcript (11)"},"timeUsage":null,"vmem":{"mean":60342272,"min":49659904,"q1":54736896,"q2":59076608,"q3":59856896,"max":83042304,"minLabel":"extract_longest_transcript (6)","maxLabel":"extract_longest_transcript (1)","q1Label":"extract_longest_transcript (5)","q2Label":"extract_longest_transcript (2)","q3Label":"extract_longest_transcript (11)"},"reads":{"mean":39880441,"min":23857139,"q1":27199835,"q2":44064852,"q3":47649546.5,"max":62560607,"minLabel":"extract_longest_transcript (4)","maxLabel":"extract_longest_transcript (1)","q1Label":"extract_longest_transcript (8)","q2Label":"extract_longest_transcript (5)","q3Label":"extract_longest_transcript (7)"},"cpu":{"mean":71.46,"min":20.4,"q1":63.25,"q2":87,"q3":88.25,"max":89.4,"minLabel":"extract_longest_transcript (3)","maxLabel":"extract_longest_transcript (4)","q1Label":"extract_longest_transcript (1)","q2Label":"extract_longest_transcript (9)","q3Label":"extract_longest_transcript (7)"},"time":{"mean":1168,"min":566,"q1":639.5,"q2":673,"q3":1518.5,"max":2831,"minLabel":"extract_longest_transcript (8)","maxLabel":"extract_longest_transcript (6)","q1Label":"extract_longest_transcript (11)","q2Label":"extract_longest_transcript (9)","q3Label":"extract_longest_transcript (7)"},"writes":{"mean":11302597.91,"min":8634004,"q1":9393097,"q2":11346849,"q3":12025697,"max":15925314,"minLabel":"extract_longest_transcript (6)","maxLabel":"extract_longest_transcript (2)","q1Label":"extract_longest_transcript (3)","q2Label":"extract_longest_transcript (9)","q3Label":"extract_longest_transcript (10)"}}] };
+{"task_id":"1","hash":"e9\/f46db0","native_id":"-","process":"runBusco","module":"-","container":"apptainer","tag":"-","name":"runBusco (1)","status":"FAILED","exit":"-","submit":"0","start":"0","complete":"1737257734976","duration":"-","realtime":"-","%cpu":"-","%mem":"-","rss":"-","vmem":"-","peak_rss":"-","peak_vmem":"-","rchar":"-","wchar":"-","syscr":"-","syscw":"-","read_bytes":"-","write_bytes":"-","attempt":"1","workdir":"\/sfs\/gpfs\/tardis\/project\/berglandlab\/connor\/GeneFamilyEvolution\/work\/e9\/f46db02384e768d27e6c20d1cc714f","script":"-","scratch":"-","queue":"-","cpus":"8","memory":"10737418240","disk":"-","time":"-","env":"-","error_action":"FINISH","vol_ctxt":"-","inv_ctxt":"-","hostname":"-"}], "summary":[{"cpuUsage":null,"process":"runBusco","mem":null,"memUsage":null,"timeUsage":null,"vmem":null,"reads":null,"cpu":null,"time":null,"writes":null}] };
 
   </script>
 

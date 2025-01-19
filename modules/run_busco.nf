@@ -5,33 +5,41 @@ nextflow.enable.dsl=2
 // Run busco on proteomes 
 process runBusco {
 
+    shell = '/usr/bin/env bash'
+    publishDir "${params.out}/busco_results", mode: 'copy'
+
     input:
-        path '*.faa'
+        tuple path(samp), 
+        val(species)
 
     output:
-        path "${sample_id}.busco"
+        val "${params.out}/busco_results/", emit: busco_dir
+        path "*/short_summary*txt"
+        path "*/run_arthropoda_odb10/full_table.tsv"
 
     script:
         """
-        cd /scratch/csm6hg/genomes/proteins_species/primary_transcripts/
-        samp=${sample_id}
-        species=$( echo \$samp | sed 's/.protein.faa//g' )
-        echo \$species
+        module load apptainer/1.3.4
 
-        singularity run /home/csm6hg/busco_v5.4.7_cv1.sif \\
-        busco \\
-        -i /scratch/csm6hg/genomes/proteins_species/primary_transcripts/\${samp} \\
-        -c 5 \\
-        --out_path /scratch/csm6hg/genomes/proteins_species/primary_transcripts/ \\
-        -l arthropoda_odb10 \\
-        -o \${species} \\
-        -m proteins
+        # Run BUSCO with local data
+        apptainer run ${params.sif_dir}/busco_v5.4.7_cv1.sif \\
+            busco \\
+            -i ${params.rawpro}/${samp} \\
+            -c ${params.threads} \\
+            -l ${params.busco_lineage} \\
+            -o ${species} \\
+            -m proteins \\
+            --offline \\
+            --download_path ${params.busco_data}
         """
 }
 
 // Plot BUSCO results
 process plotBusco {
    
+    shell = '/usr/bin/env bash'
+    publishDir "${params.out}/busco_plot", mode: 'copy'
+
     input:
         path busco_results
 
@@ -40,14 +48,10 @@ process plotBusco {
 
     script:
         """
-        module load singularity
-        singularity run /home/csm6hg/busco_v5.4.7_cv1.sif \\
-        python3 /scratch/csm6hg/scripts/generate_plot.py \\
-        -wd /scratch/csm6hg/genomes/proteins_species/primary_transcripts/summary
-        """
-}
+        module load apptainer/1.3.4
 
-workflow {
-    runBusco()
-    plotBusco(runBusco.out.collect())
+        apptainer run ${params.sif_dir}/busco_v5.4.7_cv1.sif \\
+            python3 ${params.scripts_dir}/generate_plot.py \\
+            -wd ${params.out}/${busco_results}
+        """
 }
