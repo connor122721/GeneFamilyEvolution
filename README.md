@@ -7,7 +7,7 @@ This repository analyzes gene family dynamics in _Daphnia_ species, focusing on 
 ```mermaid
 graph TD
     A[Extract Longest Transcript] --> B[Annotate GO Terms]
-    A --> C[Run BUSCO on Proteomes]
+    C[Run BUSCO on Proteomes]
     C --> D[Extract BUSCO Genes]
     A --> E[Run OrthoFinder on Longest Transcripts]
     E --> F[Annotate Orthogroups]

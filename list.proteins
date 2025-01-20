@@ -1,10 +1,10 @@
-/project/berglandlab/connor/genomes/proteins_species/anopheles.protein.faa
-/project/berglandlab/connor/genomes/proteins_species/carinata.protein.faa
-/project/berglandlab/connor/genomes/proteins_species/galeata.protein.faa
-/project/berglandlab/connor/genomes/proteins_species/magna.protein.faa
-/project/berglandlab/connor/genomes/proteins_species/melanogaster.protein.faa
-/project/berglandlab/connor/genomes/proteins_species/penaeus.protein.faa
-/project/berglandlab/connor/genomes/proteins_species/pulexeuro.protein.faa
-/project/berglandlab/connor/genomes/proteins_species/pulexnam.protein.faa
-/project/berglandlab/connor/genomes/proteins_species/pulicaria.protein.faa
-/project/berglandlab/connor/genomes/proteins_species/sinensis.protein.faa
+/project/berglandlab/connor/genomes/proteins_species/anopheles.protein.faa  outgroup
+/project/berglandlab/connor/genomes/proteins_species/carinata.protein.faa   ingroup
+/project/berglandlab/connor/genomes/proteins_species/galeata.protein.faa    ingroup
+/project/berglandlab/connor/genomes/proteins_species/magna.protein.faa  ingroup
+/project/berglandlab/connor/genomes/proteins_species/melanogaster.protein.faa   outgroup
+/project/berglandlab/connor/genomes/proteins_species/penaeus.protein.faa    outgroup
+/project/berglandlab/connor/genomes/proteins_species/pulexeuro.protein.faa  ingroup
+/project/berglandlab/connor/genomes/proteins_species/pulexnam.protein.faa   ingroup
+/project/berglandlab/connor/genomes/proteins_species/pulicaria.protein.faa  ingroup
+/project/berglandlab/connor/genomes/proteins_species/sinensis.protein.faa   ingroup

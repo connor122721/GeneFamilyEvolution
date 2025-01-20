@@ -84,6 +84,4 @@ workflow {
     // Annotate Orthogroups and generate plots
     def annot_of = annotateOrthogroups(orthofinder)
 
-    // Extract BUSCO genes
-    def busco_genes = extractBuscoGenes(proteomes)
 }
