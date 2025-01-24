@@ -7,14 +7,18 @@ nextflow.enable.dsl=2
 // ---------------------------
 
 // Extract species names from protein file paths
+// Define the channel from the input file
 Channel
     .fromPath(params.protein_list)
     .splitText()
-    .map { file -> 
+    .map { line -> 
+        def (file, group) = line.trim().tokenize('\t')
         def species = file.tokenize('/').last().tokenize('.').first()
         tuple(file, species)
     }
     .set { proteomes }
+
+// proteomes.view()
 
 // ---------------------------
 // (B) Define Processes
@@ -37,12 +41,19 @@ process extract_longest_transcript {
 
     script:
         """
-        module load miniforge/24.3.0-py3.11
-        source activate base
-
-        # Extract longest transcript
-        python ${params.OF_dir}/primary_transcript.py \\
-            ${input_faa}
+        # Extracting the longest ORF for expection species 
+        if [ ${species} == "pulexeuro" ]; then
+            module load gcc/11.4.0 openmpi/4.1.4 R/4.3.1
+            mkdir primary_transcripts
+            cd primary_transcripts
+            Rscript ${params.scripts_dir}/longest_orf_europulex.R
+        else
+            # Extract longest transcript
+            module load miniforge/24.3.0-py3.11
+            source activate base
+            python ${params.OF_dir}/primary_transcript.py \\
+                ${input_faa}
+        fi 
         """
 }
 
@@ -65,18 +76,27 @@ workflow {
     def busco = runBusco(proteomes)
 
     // Collect unique BUSCO result directories
-    busco.busco_dir
+    Channel
+        busco.busco_dir
         .unique()
         .collect()
+        .map { list -> list[0] }
         .set { busco_results }
+
+    // busco_results.view()
     
     // Plot BUSCO results after all BUSCO processes are complete
-    // plotBusco(busco_results)
+    plotBusco(busco_results)
 
     // Collect all longest transcripts paths into a list after all extract_longest_transcript processes are complete
-    orf.output_dir
+    Channel
+        orf.output_dir
         .unique()
+        .collect()
+        .map { list -> list[0] }
         .set { longest_transcripts_dirs }
+
+    //longest_transcripts_dirs.view()
 
     // Run OrthoFinder on longest transcripts
     def orthofinder = runOrthoFinder(longest_transcripts_dirs)

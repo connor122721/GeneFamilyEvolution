@@ -20,7 +20,8 @@ process extractBuscoGenes {
 
     output:
         path "*sco.faa", emit: busco_faa
-        path "*"
+        path "*faa"
+        path "*txt", emit: sco_list
 
     script:
         """
@@ -41,17 +42,15 @@ process extractBusco {
 
     input:
         val species
-        path busco_file
+        path sco_list
 
     output:
         path "genes/*"
-        val "${params.out}/sco/sco.txt", emit: sco
+        path sco_list, emit: sco
 
     script:
         """
         mkdir genes
-
-        sco_data=${params.sco_data}
 
         # Extract each SCO 
         while read -r line; do
@@ -62,40 +61,121 @@ process extractBusco {
 
             # Rename
             sed -i "s/>"\${line}"/>${species}|"\${line}"/g" ./genes/"\${line}".${species}.faa
-        done < "\${sco_data}"
+
+            # Add header if file is empty
+            if [ ! -s ./genes/"\${line}".${species}.faa ]; then
+                echo ">${species}|\${line}" > ./genes/"\${line}".${species}.faa
+            fi
+        
+        done < ${sco_list}
         """
 }
 
-// Extracting and aligning BUSCO genes
+// Aligning BUSCO genes
 process alignBusco {
 
     shell = '/usr/bin/env bash'
     publishDir "${params.out}/sco", mode: 'copy'
 
     input:
-        path busco_file
+        path(busco_file)
 
     output:
-        path "align/*"
+        tuple path("align/*align.faa"),
+        val("${params.out}/sco/align"), emit: sco_align
 
     script:
         """
-        module load mafft/7.505
+        module load gcc/11.4.0 openmpi/4.1.4 mafft/7.505
 
         mkdir align
+        echo "Processing busco_file: ${busco_file}"
+
+        # Align each SCO with mafft
+        while read -r line; do
+            echo "Aligning gene: \${line}"
+            cat ${params.out}/sco/genes/"\${line}"*.faa > "\${line}".faa
+            mafft --auto \\
+               --thread ${params.threads} \\
+               "\${line}".faa > \\
+               align/"\${line}".align.faa
+        done < ${busco_file}
+        """
+}
+
+// Trims alignment of poor mapping
+process trimAlign {
+    
+    shell = '/usr/bin/env bash'
+    publishDir "${params.out}/sco", mode: 'copy'
+
+    input:
+        path sco_align_dir
+
+    output:
+        path "trim/*realign.clip.faa"
+        path "${params.out}/sco/sco.txt", emit: busco_genes_list
+
+    script:
+        """
+        module load apptainer/1.3.4
+
+        mkdir trim
 
         # Align each SCO with mafft
         while read -r line; do
             echo "\${line}"
 
-            cat ${params.out}/genes/"\${line}"*.faa > "\${line}".faa
+            apptainer run ${params.sif_dir}/clipkit_latest.sif \\
+                clipkit -m smart-gap \\
+                ${sco_align_dir}/"\${line}".align.faa \\
+                -o trim/"\${line}".clip.faa
+        
+        done < ${params.sco_data}
+
+        module load gcc/11.4.0 openmpi/4.1.4 mafft/7.505
+
+        # Realignment of trimmed SCO with mafft
+        while read -r line; do
+            echo "\${line}"
 
             mafft --auto \\
-            --thread ${params.threads} \\
-            "\${line}".faa > \\
-            ./align/"\${line}".align.faa
-
+                --thread ${params.threads} \\
+                trim/"\${line}".clip.faa > \\
+                trim/"\${line}".realign.clip.faa
+        
         done < ${params.sco_data}
+
+        echo "done"
+        """
+}
+
+// Make BUSCO trees
+process runBuscoTrees {
+    
+    shell = '/usr/bin/env bash'
+    publishDir "${params.out}/trees", mode: 'copy'
+
+    input:
+        val busco_input_gene
+
+    output:
+        path "trees/*tre.treefile"
+        path "trees/busco_sco_genes.tre"
+
+    script:
+        """
+        mkdir trees
+
+        # Run iqtree2
+        ${params.iqtree_dir}/iqtree2 \
+            -redo \
+            -bb 1000 \
+            -s ${params.out}/sco/trim/${busco_input_gene}.realign.clip.fa \
+            -T 1 \
+            --prefix trees/${busco_input_gene}.tree
+
+        cat trees/*.tre.treefile > trees/busco_sco_genes.tre
         """
 }
 
@@ -103,18 +183,51 @@ process alignBusco {
 workflow {
         
     // Extract BUSCO genes
-    def busco_genes = extractBuscoGenes()
+    def busco_genes_ext = extractBuscoGenes()
 
-    // Extract and align BUSCO genes
-    def ext_busco = extractBusco(species, params.sco_data)
-
-    // Collect unique BUSCO result directories
-    ext_busco.sco
+    Channel
+        busco_genes_ext.sco_list
         .unique()
         .collect()
+        .map { list -> list[0] }
+        .set { sco_busco_results }
+
+
+    // Extract and align BUSCO genes
+    def ext_busco = extractBusco(species, 
+                                 sco_busco_results)
+
+    // Collect unique BUSCO result directories
+    Channel
+        ext_busco.sco
+        .unique()
+        .collect()
+        .map { list -> list[0] }
         .set { ext_busco_results }
+
+    //ext_busco_results.view()
 
     // Align BUSCO genes
     def align_busco = alignBusco(ext_busco_results)
+    
+    // Collect unique align's output
+    Channel 
+        align_busco.sco_align
+        .unique()
+        .collect()
+        .map { list -> list[1] }
+        .set { align_busco_dir }
 
+    // align_busco_dir.view()
+
+    // Trim and realign BUSCO genes
+    def trim_busco = trimAlign(align_busco_dir)
+
+    // All BUSCO genes
+    // trim_busco.busco_genes_list.splitText().map { it.strip() }.set { busco_genes }
+
+    // Make BUSCO trees
+    // busco_genes.flatMap { it }.set { busco_input_genes }
+
+    // runBuscoTrees(busco_input_genes)
 }

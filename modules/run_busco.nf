@@ -2,6 +2,29 @@
 
 nextflow.enable.dsl=2
 
+// Download Busco dataset
+process downloadBusco {
+
+    shell = '/usr/bin/env bash'
+    publishDir "${params.out}/busco_dataset", mode: 'copy'
+
+    input:
+        val dataset
+
+    output:
+        path "*"
+
+    script:
+        """
+        module load apptainer/1.3.4
+
+        # Run BUSCO
+        apptainer run ${params.sif_dir}/busco_v5.4.7_cv1.sif \\
+            busco \\
+            --download ${dataset}
+        """
+}
+
 // Run busco on proteomes 
 process runBusco {
 
@@ -41,6 +64,8 @@ process runBusco {
 // Plot BUSCO results
 process plotBusco {
    
+    // Set the error strategy to ignore failures in this process, dumb plotting errors 
+    errorStrategy 'ignore'
     shell = '/usr/bin/env bash'
     publishDir "${params.out}/busco_plot", mode: 'copy'
 
@@ -53,10 +78,15 @@ process plotBusco {
     script:
         """
         module load apptainer/1.3.4
-        module load gcc/11.4.0 openmpi/4.1.4 R/4.3.1
 
+        # Run plot creation script
         apptainer run ${params.sif_dir}/busco_v5.4.7_cv1.sif \\
             python3 ${params.scripts_dir}/generate_plot.py \\
-            -wd ${params.out}/${busco_results}
+            -wd ${params.out}/${busco_results} \\
+            --no_r
+        
+        # Run Busco script
+        module load gcc/11.4.0 openmpi/4.1.4 R/4.3.1
+        Rscript ${params.out}/${busco_results}/busco_figure.R
         """
 }
