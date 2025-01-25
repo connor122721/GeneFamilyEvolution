@@ -62,10 +62,10 @@ process extractBusco {
             # Rename
             sed -i "s/>"\${line}"/>${species}|"\${line}"/g" ./genes/"\${line}".${species}.faa
 
-            # Add header if file is empty
-            if [ ! -s ./genes/"\${line}".${species}.faa ]; then
-                echo ">${species}|\${line}" > ./genes/"\${line}".${species}.faa
-            fi
+            # Add species header if file is empty (missing gene handler)
+            # if [ ! -s ./genes/"\${line}".${species}.faa; then
+            #     echo ">${species}|\${line}" > ./genes/"\${line}".${species}.faa
+            # fi
         
         done < ${sco_list}
         """
@@ -81,8 +81,7 @@ process alignBusco {
         path(busco_file)
 
     output:
-        tuple path("align/*align.faa"),
-        val("${params.out}/sco/align"), emit: sco_align
+        path("align/*align.faa")
 
     script:
         """
@@ -107,46 +106,35 @@ process alignBusco {
 process trimAlign {
     
     shell = '/usr/bin/env bash'
-    publishDir "${params.out}/sco", mode: 'copy'
+    publishDir "${params.out}/sco/trim", mode: 'copy'
+    cpus = 1
+    memory = '1GB'
+    errorStrategy = 'finish'
 
     input:
-        path sco_align_dir
+        path(align_faa)
 
     output:
-        path "trim/*realign.clip.faa"
-        path "${params.out}/sco/sco.txt", emit: busco_genes_list
+        tuple path("*.realign.clip.faa"),
+            val("${params.out}/sco/sco.txt")
 
     script:
         """
         module load apptainer/1.3.4
-
-        mkdir trim
+        gene=\$( echo ${align_faa} | cut -f1 -d"." )
 
         # Align each SCO with mafft
-        while read -r line; do
-            echo "\${line}"
-
-            apptainer run ${params.sif_dir}/clipkit_latest.sif \\
-                clipkit -m smart-gap \\
-                ${sco_align_dir}/"\${line}".align.faa \\
-                -o trim/"\${line}".clip.faa
-        
-        done < ${params.sco_data}
+        apptainer run ${params.sif_dir}/clipkit_latest.sif \\
+            clipkit -m smart-gap \\
+            ${align_faa} \\
+            -o "\${gene}".clip.faa
 
         module load gcc/11.4.0 openmpi/4.1.4 mafft/7.505
 
         # Realignment of trimmed SCO with mafft
-        while read -r line; do
-            echo "\${line}"
-
-            mafft --auto \\
-                --thread ${params.threads} \\
-                trim/"\${line}".clip.faa > \\
-                trim/"\${line}".realign.clip.faa
-        
-        done < ${params.sco_data}
-
-        echo "done"
+        mafft --auto \\
+            "\${gene}".clip.faa > \\
+            "\${gene}".realign.clip.faa
         """
 }
 
@@ -155,29 +143,33 @@ process runBuscoTrees {
     
     shell = '/usr/bin/env bash'
     publishDir "${params.out}/trees", mode: 'copy'
+    cpus = 1
+    memory = '1GB'
+    errorStrategy = 'finish'
 
     input:
-        val busco_input_gene
+        path(input_trim_faa)
 
     output:
-        path "trees/*tre.treefile"
-        path "trees/busco_sco_genes.tre"
+        path("*.treefile")
 
     script:
         """
-        mkdir trees
+        gene=\$( echo ${input_trim_faa} | cut -f1 -d"." )
 
         # Run iqtree2
-        ${params.iqtree_dir}/iqtree2 \
-            -redo \
-            -bb 1000 \
-            -s ${params.out}/sco/trim/${busco_input_gene}.realign.clip.fa \
-            -T 1 \
-            --prefix trees/${busco_input_gene}.tree
-
-        cat trees/*.tre.treefile > trees/busco_sco_genes.tre
+        ${params.iqtree_dir}/iqtree2 \\
+            -redo \\
+            -bb 1000 \\
+            -s ${input_trim_faa} \\
+            -T 1 \\
+            --prefix \${gene}
+        #cat trees/*.tre.treefile > trees/busco_sco_genes.tre
         """
 }
+
+// Add modules
+include { makeConsensusMCMC } from './makeSpeciesTree.nf'
 
 // Define the workflow
 workflow {
@@ -191,7 +183,6 @@ workflow {
         .collect()
         .map { list -> list[0] }
         .set { sco_busco_results }
-
 
     // Extract and align BUSCO genes
     def ext_busco = extractBusco(species, 
@@ -208,26 +199,39 @@ workflow {
     //ext_busco_results.view()
 
     // Align BUSCO genes
-    def align_busco = alignBusco(ext_busco_results)
+    alignBusco(ext_busco_results)
     
     // Collect unique align's output
-    Channel 
-        align_busco.sco_align
-        .unique()
-        .collect()
-        .map { list -> list[1] }
+    //Channel align_busco.sco_align.unique().collect().map { list -> list[1] }
+    Channel
+        alignBusco.out
+        .map { tuple -> tuple[0] }
+        .flatten()    
         .set { align_busco_dir }
 
-    // align_busco_dir.view()
+    align_busco_dir.view()
 
     // Trim and realign BUSCO genes
-    def trim_busco = trimAlign(align_busco_dir)
+    trimAlign(align_busco_dir)
 
-    // All BUSCO genes
-    // trim_busco.busco_genes_list.splitText().map { it.strip() }.set { busco_genes }
+    // Each SCO
+    Channel
+       trimAlign.out
+        .map { tuple -> tuple[0] }
+        .flatten()
+        .set { trim_faa }
+    
+    //trim_faa.view()
 
-    // Make BUSCO trees
-    // busco_genes.flatMap { it }.set { busco_input_genes }
+    // Make Busco trees
+    runBuscoTrees(trim_faa)
 
-    // runBuscoTrees(busco_input_genes)
+    Channel
+        runBuscoTrees.out
+        .unique()
+        .collect()
+        .set { busco_trees }
+
+    // Make consensus species-tree
+    makeConsensusMCMC(busco_trees)
 }

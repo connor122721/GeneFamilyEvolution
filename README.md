@@ -13,6 +13,9 @@ graph TD
     E --> F[Annotate Orthogroups]
 ```
 
+## Set-Up
+- Download updated protein coding GTFs from NCBI and genomes and determine your appropriate in-group and out-group species.
+
 ## BUSCO
 - BUSCO assesses the completeness of _Daphnia_ genome assemblies and annotations by evaluating conserved single-copy orthologs.
 
@@ -27,3 +30,6 @@ graph TD
 
 ## Selection
 - Selection analysis investigates evolutionary pressures on specific gene families, particularly those undergoing expansion, using codon-based models like _PAML_ and _HyPhy_.
+
+## Notes
+- While I am using ``` apptainer run latest_image.sif``` for most processes, you could modify the code to run ``` apptainer exec docker://image:latest ``` so you do not have to pull images. 
