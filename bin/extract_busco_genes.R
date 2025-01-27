@@ -1,3 +1,4 @@
+#!/usr/bin/env Rscript
 # Extract BUSCO genes across species - make fasta files for each species
 # Connor Murray 7.30.2023, mod 1.20.2025
 # module load gcc/11.4.0 openmpi/4.1.4 R/4.3.1; R

@@ -8,7 +8,7 @@ process makeConsensusMCMC {
         path(sco_tree_list)
 
     output:
-        path("*.nwk")
+        path("*.nwk"), emit: nwk
         path("busco_sco_genes.tre")
         path("sco_species_astralpro")
 
@@ -21,7 +21,7 @@ process makeConsensusMCMC {
         while read -r line; do
             echo \${line}
             sed -i 's/'\${line}'//g' busco_sco_genes.tre
-        done < *treefile
+        done < ${params.sco_data}
 
         # Remove "|" character
         sed -i 's/|:/:/g' busco_sco_genes.tre
@@ -36,7 +36,7 @@ process makeConsensusMCMC {
 
         # Make prep tree for MCMCtree
         module load miniforge/24.3.0-py3.11
-        source activate msprime_env
+        source activate base
 
         # Add time constraints
         python ${params.scripts_dir}/mcmctree_prep.py \\
@@ -65,5 +65,36 @@ process makeConsensusMCMC {
             --tree - \\
             --add_header \\
             > sco_daphnia_mcmc_1.25.25.nwk
+        """
+}
+
+// Prep MCMCtree input
+process prepMCMCtree {
+
+    shell = '/usr/bin/env bash'
+    publishDir "${params.out}/spp_tree", mode: 'copy'
+
+    input:
+        path(nwk)
+
+    output:
+        path("sco_daphnia_mega_clip.faa")
+
+    script:
+        """
+        # Make mega sequence alignment for MCMCtree
+        while read -r gene; do
+            echo \${gene}
+                    
+            # Rename
+            sed "s/|\${gene}//g" \\
+                ${params.out}/sco/trim/\${gene}.realign.clip.faa > \\
+                \${gene}.align.clip.faa
+
+        done < ${params.out}/sco/sco.txt
+
+        # Concatenate aligned genes
+        ~/seqkit concat *.align.clip.faa \\
+            -o sco_daphnia_mega_clip.faa
         """
 }

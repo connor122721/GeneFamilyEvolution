@@ -18,8 +18,6 @@ Channel
     }
     .set { proteomes }
 
-// proteomes.view()
-
 // ---------------------------
 // (B) Define Processes
 // ---------------------------
@@ -36,7 +34,7 @@ process extract_longest_transcript {
 
     output:
         val "${params.out}/longest_orf/primary_transcripts/", emit: output_dir
-        path "primary_transcripts/${species}*faa", emit: output_faa
+        path "primary_transcripts/${species}*.protein.faa", emit: output_faa
         val "${species}", emit: species
 
     script:
@@ -47,6 +45,7 @@ process extract_longest_transcript {
             mkdir primary_transcripts
             cd primary_transcripts
             Rscript ${params.scripts_dir}/longest_orf_europulex.R
+            cp "/project/berglandlab/connor/genomes/proteins_species/${input_faa}" .
         else
             # Extract longest transcript
             module load miniforge/24.3.0-py3.11
@@ -61,7 +60,7 @@ process extract_longest_transcript {
 include { runBusco; plotBusco } from './modules/run_busco.nf'
 include { runOrthoFinder } from './modules/run_orthofinder.nf'
 include { annotateOrthogroups; annotateGO } from './modules/annotate_og.nf'
-include { extractBuscoGenes } from './modules/extract_busco_genes.nf'
+include { extractBuscoGenes } from './extract_busco_genes.nf'
 
 // Define the workflow
 workflow {
@@ -82,8 +81,6 @@ workflow {
         .collect()
         .map { list -> list[0] }
         .set { busco_results }
-
-    // busco_results.view()
     
     // Plot BUSCO results after all BUSCO processes are complete
     plotBusco(busco_results)
@@ -95,8 +92,6 @@ workflow {
         .collect()
         .map { list -> list[0] }
         .set { longest_transcripts_dirs }
-
-    //longest_transcripts_dirs.view()
 
     // Run OrthoFinder on longest transcripts
     def orthofinder = runOrthoFinder(longest_transcripts_dirs)

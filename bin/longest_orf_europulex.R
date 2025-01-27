@@ -40,4 +40,4 @@ primary_transcripts <- pulex_fasta[names(pulex_fasta) %in% fin]
 # Write primary transcripts to a new fasta file
 write.fasta(sequences = primary_transcripts, 
             names = names(primary_transcripts), 
-            file.out = "pulexeuro.protein.faa")
+            file.out = "pulexeuro_orf.protein.faa")

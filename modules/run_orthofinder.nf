@@ -19,6 +19,12 @@ process runOrthoFinder {
         module load miniforge/24.3.0-py3.11
         source activate msprime_env
 
+        # Exception species conditional statement
+        if [[ ${longest_transcripts_dir}/pulexeuro_orf.protein.faa ]]; then
+            mv ${longest_transcripts_dir}/pulexeuro_orf.protein.faa \\
+            ${longest_transcripts_dir}/pulexeuro.protein.faa
+        fi
+
         # Run OrthoFinder
         orthofinder \\
             -f ${longest_transcripts_dir} \\
