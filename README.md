@@ -7,10 +7,12 @@ This repository analyzes gene family dynamics in _Daphnia_ species, focusing on 
 ```mermaid
 graph TD
     A[Extract Longest Transcript] --> B[Annotate GO Terms]
-    C[Run BUSCO on Proteomes]
-    C --> D[Extract BUSCO Genes]
-    A --> E[Run OrthoFinder on Longest Transcripts]
-    E --> F[Annotate Orthogroups]
+    C[Run BUSCO on Proteomes] --> D[Extract BUSCO Genes]
+    D --> E[Align BUSCO Genes]
+    E --> F[Trim and Realign BUSCO Genes]
+    F --> G[Make BUSCO Trees]
+    A --> H[Run OrthoFinder on Longest Transcripts]
+    H --> I[Annotate Orthogroups]
 ```
 
 ## Set-Up
@@ -32,4 +34,4 @@ graph TD
 - Selection analysis investigates evolutionary pressures on specific gene families, particularly those undergoing expansion, using codon-based models like _PAML_ and _HyPhy_.
 
 ## Notes
-- While I am using ``` apptainer run latest_image.sif``` for most processes, you could modify the code to run ``` apptainer exec docker://image:latest ``` so you do not have to pull images. 
+- While I am using ``` apptainer run latest_image.sif``` for most processes, you could modify the code to run ``` apptainer exec docker://image:latest ``` so you do not have to pull images.

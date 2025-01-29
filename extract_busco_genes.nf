@@ -166,6 +166,10 @@ process runBuscoTrees {
 
 // Add modules
 include { makeConsensusMCMC; prepMCMCtree } from './modules/makeSpeciesTree.nf'
+include { MCMCTREE as MCMCTREE_1 } from './modules/makeSpeciesTree.nf'
+include { MCMCTREE as MCMCTREE_2 } from './modules/makeSpeciesTree.nf'
+include { MCMCTREE as MCMCTREE_3 } from './modules/makeSpeciesTree.nf'
+include { filterHogs; runCAFE } from './modules/cafe.nf'
 
 // Define the workflow
 workflow {
@@ -216,5 +220,16 @@ workflow {
 
     // Make mega-MSA
     prepMCMCtree(makeConsensus.nwk)
+
+    // Estimate divergence time
+    MCMCTREE_1(prepMCMCtree.out.ali, makeConsensus.nwk, 1)
+    MCMCTREE_2(prepMCMCtree.out.ali, makeConsensus.nwk, 2)
+    MCMCTREE_3(prepMCMCtree.out.ali, makeConsensus.nwk, 3)
+
+    // Run CAFE on species-tree
+    filterHogs(params.hog)
+
+    // Run CAFE
+    runCAFE(filterHogs.out)
 
 }

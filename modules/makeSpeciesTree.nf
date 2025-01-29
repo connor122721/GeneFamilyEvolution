@@ -78,7 +78,7 @@ process prepMCMCtree {
         path(nwk)
 
     output:
-        path("sco_daphnia_mega_clip.faa")
+        path("sco_daphnia_mega_clip.faa"), emit: ali
 
     script:
         """
@@ -96,5 +96,48 @@ process prepMCMCtree {
         # Concatenate aligned genes
         ~/seqkit concat *.align.clip.faa \\
             -o sco_daphnia_mega_clip.faa
+        """
+}
+
+// Run MCMCtree
+process MCMCTREE {
+
+    shell = '/usr/bin/env bash'
+    publishDir "${params.out}/mcmctree", mode: 'copy'
+    cpus 8
+    memory = '50 GB' // This is a memory intensive step
+    time '1d' // This also takes awhile to finish
+
+    input:
+        path(ali)
+        path(nwk)
+        val(replicate)
+
+    output:
+        path("FigTree_*")
+        path("mcmctreeout*")
+        path("mcmc_*.txt")
+
+    script:
+        """
+        # Run PAML package MCMCtree
+        export PATH=~/phd_software/paml-4.10.7/bin/:$PATH
+
+        cp ${params.wd}/bin/mcmctree.ctl .
+        sed -i "s/outfile = mcmctreeout/outfile = mcmctreeout_${replicate}/g" mcmctree.ctl
+
+        # Run mcmctree - first run to estimate in.BV
+        mcmctree mcmctree.ctl
+
+        # modify control file
+        mv out.BV in.BV
+        sed -i "s/usedata = 3/usedata = 2/g" mcmctree.ctl
+
+        # Rerun to get divergence times
+        mcmctree mcmctree.ctl
+        
+        # Rename for replicates
+        mv FigTree.tre FigTree_${replicate}.tre
+        mv mcmc.txt mcmc_${replicate}.txt
         """
 }

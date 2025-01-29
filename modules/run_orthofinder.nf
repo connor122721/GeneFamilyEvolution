@@ -7,6 +7,9 @@ process runOrthoFinder {
 
     shell = '/usr/bin/env bash'
     publishDir "${params.out}/orthofinder", mode: 'copy'
+    cpus 16
+    memory = '50 GB' // This is a memory intensive step
+    time '1d' // This also takes awhile to finish
 
     input:
         path longest_transcripts_dir
@@ -28,6 +31,7 @@ process runOrthoFinder {
         # Run OrthoFinder
         orthofinder \\
             -f ${longest_transcripts_dir} \\
-            -t ${params.of_threads}
+            -t ${params.of_threads} \\
+            -a ${params.of_threads}
         """
 }
