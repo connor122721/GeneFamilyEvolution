@@ -141,3 +141,26 @@ process MCMCTREE {
         mv mcmc.txt mcmc_${replicate}.txt
         """
 }
+
+// Plot MCMCtree output
+process plotMCMCtree {
+
+    shell = '/usr/bin/env bash'
+    publishDir "${params.out}/mcmctree", mode: 'copy'
+
+    input:
+        path(Figtree)
+        path(mcmctree_log)
+        path(mcmctree_output)
+
+    output:
+        path("mcmc.full.pdf")
+        path("mcmctree_busco_daphnia.nwk"), emit: cafe_input_tree
+
+    script:
+        """
+        # Run analysis script
+        module load gcc/11.4.0 openmpi/4.1.4 R/4.3.1
+        Rscript ${params.scripts_dir}/processMCMCtree.R
+        """
+}

@@ -9,8 +9,8 @@ library(MCMCtreeR)
 library(patchwork)
 
 # Phylogenetic tree
-phy <- readMCMCtree("FigTree_run1.tre", from.file = TRUE)
-#ape::write.tree(phy$apePhy, file="mcmctree_busco_daphnia.nwk")
+phy <- readMCMCtree("*.tre", from.file = TRUE)
+ape::write.tree(phy$apePhy, file="mcmctree_busco_daphnia.nwk")
 
 # Plot w/ time
 MCMC.tree.plot(phy, 
@@ -26,39 +26,41 @@ MCMC.tree.plot(phy,
                cex.labels = 1)
 
 # Posterior times - reading data0 run and actual run
-prior <- fread("mcmc_run_data0.txt")
-mcmc1 <- fread("mcmc_run1.txt")
-mcmc2 <- fread("mcmc_run2.txt")
+mcmc1 <- fread("/project/berglandlab/connor/GeneFamilyEvolution/output/mcmctree/mcmc_1.txt")
+mcmc2 <- fread("/project/berglandlab/connor/GeneFamilyEvolution/output/mcmctree/mcmc_2.txt")
+mcmc3 <- fread("/project/berglandlab/connor/GeneFamilyEvolution/output/mcmctree/mcmc_3.txt")
 
 # to check for convergence of the MCMC runs, we calculate the posterior
 # means of times for each run, and plot them against each other
 t.mean1 <- apply(mcmc1[,2:7], 2, mean)
 t.mean2 <- apply(mcmc2[,2:7], 2, mean)
+t.mean3 <- apply(mcmc3[,2:7], 2, mean)
 
 # Plot divergence times between runs
 tt <- cbind(data.table(t.mean1), 
-            data.table(t.mean2))
+            data.table(t.mean2),
+            data.table(t.mean3))
 
 # Convergence 
 con <- {
   
   tt %>% 
-  ggplot(aes(x=t.mean1*100,
-             y=t.mean2*100)) +
-  geom_abline(slope = 1, intercept = 0, size=1) +
-  geom_point(size=3, color="blue") +
-  coord_fixed(ratio=1) +
-  theme_bw() +
-  labs(x="Mean Divergence Run 1 (mya)",
-       y="Mean Divergence Run 2 (mya)") +
-  theme(strip.text = element_text(face="bold", size=18),
-        title = element_text(face="bold", size=20),
-        legend.position = "none",
-        axis.text.x = element_text(face="bold", size=18),
-        axis.text.y = element_text(face="bold", size=18),
-        axis.title.x = element_text(face="bold", size=20),
-        axis.title.y = element_text(face="bold", size=20),
-        axis.title = element_text(face="bold", size=20))
+    ggplot(aes(x=t.mean1*100,
+               y=t.mean2*100)) +
+    geom_abline(slope = 1, intercept = 0, size=1) +
+    geom_point(size=3, color="blue") +
+    coord_fixed(ratio=1) +
+    theme_bw() +
+    labs(x="Mean Divergence Run 1 (mya)",
+        y="Mean Divergence Run 2 (mya)") +
+    theme(strip.text = element_text(face="bold", size=18),
+          title = element_text(face="bold", size=20),
+          legend.position = "none",
+          axis.text.x = element_text(face="bold", size=18),
+          axis.text.y = element_text(face="bold", size=18),
+          axis.title.x = element_text(face="bold", size=20),
+          axis.title.y = element_text(face="bold", size=20),
+          axis.title = element_text(face="bold", size=20))
 }
 
 # Trace plots
@@ -66,7 +68,8 @@ gens <- seq(0, 5000000, by=10000)
 
 # Merge runs
 mcmc.merge <- data.table(rbind(data.table(mcmc1, run="Run_1"),
-                               data.table(mcmc2, run="Run_2")))
+                               data.table(mcmc2, run="Run_2"),
+                               data.table(mcmc3, run="Run_3")))
 
 tplot <-{
   mcmc.merge[Gen %in% gens] %>%
@@ -76,7 +79,9 @@ tplot <-{
                   y=value*100, 
                   color=run)) +
       geom_line(size=1.2, alpha=0.7) +
-      scale_color_manual(values=c("Run_1"="blue", "Run_2"="orange")) +
+      scale_color_manual(values=c("Run_1"="blue", 
+                                  "Run_2"="orange",
+                                  "Run_3"="yellow")) +
       facet_wrap(~name) +
       theme_bw() +
       labs(x="MCMC Generation (Million)",

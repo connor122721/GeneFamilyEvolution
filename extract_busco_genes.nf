@@ -165,7 +165,7 @@ process runBuscoTrees {
 }
 
 // Add modules
-include { makeConsensusMCMC; prepMCMCtree } from './modules/makeSpeciesTree.nf'
+include { makeConsensusMCMC; prepMCMCtree; plotMCMCtree } from './modules/makeSpeciesTree.nf'
 include { MCMCTREE as MCMCTREE_1 } from './modules/makeSpeciesTree.nf'
 include { MCMCTREE as MCMCTREE_2 } from './modules/makeSpeciesTree.nf'
 include { MCMCTREE as MCMCTREE_3 } from './modules/makeSpeciesTree.nf'
@@ -226,10 +226,13 @@ workflow {
     MCMCTREE_2(prepMCMCtree.out.ali, makeConsensus.nwk, 2)
     MCMCTREE_3(prepMCMCtree.out.ali, makeConsensus.nwk, 3)
 
+    // Plot MCMCtree and make prep-file for CAFE
+    plotMCMCtree(MCMCTREE_3.out)
+
     // Run CAFE on species-tree
     filterHogs(params.hog)
 
     // Run CAFE
-    runCAFE(filterHogs.out)
+    //runCAFE(filterHogs.out)
 
 }
