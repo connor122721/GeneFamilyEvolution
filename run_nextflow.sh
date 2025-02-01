@@ -14,5 +14,5 @@
 module load nextflow
 
 # Run nextflow
-nextflow run extract_busco_genes.nf -profile slurm -resume
-
+# nextflow run extract_busco_genes.nf -profile slurm -resume
+nextflow run main.nf -profile slurm -resume

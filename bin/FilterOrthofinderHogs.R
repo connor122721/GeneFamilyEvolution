@@ -16,7 +16,7 @@ hog$n <- sapply(hog$pid, function(x) length(strsplit(x, ', ')[[1]]))
 
 # Exclude HOGs with lots of genes in a one or more species. 
 # See also cafe tutorial about filtering gene families
-keep <- hog[, list(n_max=max(n)), HOG][n_max < 100]$HOG
+keep <- hog[, list(n_max=max(n)), HOG][n_max < 75]$HOG
 hog <- hog[HOG %in% keep]
 
 # Exclude HOGs present in only 1 species

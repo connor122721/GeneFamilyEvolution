@@ -9,10 +9,10 @@ process annotateOrthogroups {
     publishDir "${params.out}/orthogroups_annotation", mode: 'copy'
 
     input:
-        path orthofinder_results
+        path(orthofinder_results)
 
     output:
-        path "hogs.*.function.tsv"
+        path("hogs.*.function.tsv")
 
     script:
         """
@@ -30,7 +30,7 @@ process annotateOrthogroups {
         """
 }
 
-
+ 
 // Annotate Orthogroups
 process annotateGO {
 
@@ -38,12 +38,13 @@ process annotateGO {
     publishDir "${params.out}/orthogroups_annotation", mode: 'copy'
 
     input:
-        val species
+        val(species)
 
     output:
-        path "${species}.genes_orf_Pfam-A.tblout"
-        path "${species}.genes_orf_Pfam-A.map"
-        path "${species}.genes_orf_Pfam-A.map.gaf"
+        path("${species}.genes_orf_Pfam-A.tblout")
+        path("${species}.genes_orf_Pfam-A.map")
+        path("${species}.genes_orf_Pfam-A.map.gaf")
+        path("*GOterm_mapping.tsv")
 
     script:
         """

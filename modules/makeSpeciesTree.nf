@@ -57,12 +57,6 @@ process makeConsensusMCMC {
             --lower_bound 474.8 \\
             --upper_bound 530 \\
             --tree - \\
-            | python ${params.scripts_dir}/mcmctree_prep.py \\
-            --left_species anopheles \\
-            --right_species melanogaster \\
-            --lower_bound 216.6 \\
-            --upper_bound 265.7 \\
-            --tree - \\
             --add_header \\
             > sco_daphnia_mcmc_1.25.25.nwk
         """
@@ -147,6 +141,7 @@ process plotMCMCtree {
 
     shell = '/usr/bin/env bash'
     publishDir "${params.out}/mcmctree", mode: 'copy'
+    memory = '30 GB' // This is a memory intensive step
 
     input:
         path(Figtree)
@@ -154,6 +149,7 @@ process plotMCMCtree {
         path(mcmctree_output)
 
     output:
+        path("MCMCtree.pdf")
         path("mcmc.full.pdf")
         path("mcmctree_busco_daphnia.nwk"), emit: cafe_input_tree
 
@@ -162,5 +158,7 @@ process plotMCMCtree {
         # Run analysis script
         module load gcc/11.4.0 openmpi/4.1.4 R/4.3.1
         Rscript ${params.scripts_dir}/processMCMCtree.R
+        mv Rplots.pdf MCMCtree.pdf
+        
         """
 }

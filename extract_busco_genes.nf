@@ -166,15 +166,23 @@ process runBuscoTrees {
 
 // Add modules
 include { makeConsensusMCMC; prepMCMCtree; plotMCMCtree } from './modules/makeSpeciesTree.nf'
+
+// Run multiple Fossil-calibrated trees
 include { MCMCTREE as MCMCTREE_1 } from './modules/makeSpeciesTree.nf'
 include { MCMCTREE as MCMCTREE_2 } from './modules/makeSpeciesTree.nf'
 include { MCMCTREE as MCMCTREE_3 } from './modules/makeSpeciesTree.nf'
-include { filterHogs; runCAFE } from './modules/cafe.nf'
+
+// Run Multiple CAFE runs
+include { filterHogs } from './modules/cafe.nf'
+include { runCAFE as runCAFE_1 } from './modules/cafe.nf'
+include { runCAFE as runCAFE_2 } from './modules/cafe.nf'
+include { runCAFE as runCAFE_3 } from './modules/cafe.nf'
+include { runCAFE as runCAFE_4 } from './modules/cafe.nf'
 
 // Define the workflow
 workflow {
         
-    // Extract BUSCO genes
+    // 1) Extract BUSCO genes
     def busco_genes_ext = extractBuscoGenes()
 
     // Directly use sco_list
@@ -182,7 +190,7 @@ workflow {
         .distinct()
         .set { sco_busco_results }
 
-    // Extract and align BUSCO genes
+    // 2) Extract and align BUSCO genes
     def ext_busco = extractBusco(species, 
                                  sco_busco_results)
 
@@ -195,10 +203,10 @@ workflow {
         .splitText() { it.trim() }
         .set { ext_busco_results }
 
-    // Align BUSCO genes
+    // 3) Align BUSCO genes
     def align_busco = alignBusco(ext_busco_results)
     
-    // Trim and realign BUSCO genes
+    // 4) Trim and realign BUSCO genes
     trimAlign(align_busco.flatten())
 
     // Make tree from each BUSCO
@@ -207,7 +215,7 @@ workflow {
         .flatten()
         .set { trim_faa }
 
-    // Make Busco trees
+    // 5) Make Busco trees
     runBuscoTrees(trim_faa)
 
     // Collect all treefiles
@@ -215,24 +223,37 @@ workflow {
         .collect()
         .set { busco_trees }
 
-    // Make consensus species-tree
+    // 6) Make consensus species-tree
     def makeConsensus = makeConsensusMCMC(busco_trees)
 
-    // Make mega-MSA
+    // 7) Make mega-MSA
     prepMCMCtree(makeConsensus.nwk)
 
-    // Estimate divergence time
+    // 8) Estimate divergence time
     MCMCTREE_1(prepMCMCtree.out.ali, makeConsensus.nwk, 1)
     MCMCTREE_2(prepMCMCtree.out.ali, makeConsensus.nwk, 2)
     MCMCTREE_3(prepMCMCtree.out.ali, makeConsensus.nwk, 3)
 
-    // Plot MCMCtree and make prep-file for CAFE
+    // 9) Plot MCMCtree and make prep-file for CAFE
     plotMCMCtree(MCMCTREE_3.out)
 
-    // Run CAFE on species-tree
+    // 10) Run CAFE on species-tree
     filterHogs(params.hog)
 
-    // Run CAFE
-    //runCAFE(filterHogs.out)
+    // 11) Run CAFE with multiple settings
+    runCAFE_1(filterHogs.out,
+              plotMCMCtree.out.cafe_input_tree,
+              "-o r1_hogs")
 
+    runCAFE_2(filterHogs.out,
+              plotMCMCtree.out.cafe_input_tree,
+              "-k 3 -o r1_k3_hogs")
+
+    runCAFE_3(filterHogs.out,
+              plotMCMCtree.out.cafe_input_tree,
+              "-k 3 -p -o r1_k3_p_hogs")
+
+    runCAFE_4(filterHogs.out,
+              plotMCMCtree.out.cafe_input_tree,
+              "-e -o r1_e_hogs")
 }

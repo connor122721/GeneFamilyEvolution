@@ -9,7 +9,7 @@ library(MCMCtreeR)
 library(patchwork)
 
 # Phylogenetic tree
-phy <- readMCMCtree("*.tre", from.file = TRUE)
+phy <- readMCMCtree("FigTree_3.tre", from.file = TRUE)
 ape::write.tree(phy$apePhy, file="mcmctree_busco_daphnia.nwk")
 
 # Plot w/ time
@@ -23,7 +23,8 @@ MCMC.tree.plot(phy,
                scale.res = c("Eon", "Period"),
                node.method = "node.length", 
                col.age = "#008b0080",
-               cex.labels = 1)
+               cex.labels = 1,
+               plot=TRUE)
 
 # Posterior times - reading data0 run and actual run
 mcmc1 <- fread("/project/berglandlab/connor/GeneFamilyEvolution/output/mcmctree/mcmc_1.txt")
@@ -45,9 +46,9 @@ tt <- cbind(data.table(t.mean1),
 con <- {
   
   tt %>% 
-    ggplot(aes(x=t.mean1*100,
-               y=t.mean2*100)) +
-    geom_abline(slope = 1, intercept = 0, size=1) +
+    ggplot(aes(x=t.mean1,
+               y=t.mean2)) +
+    geom_abline(slope = 1, intercept = 0, linewidth=1) +
     geom_point(size=3, color="blue") +
     coord_fixed(ratio=1) +
     theme_bw() +
@@ -76,12 +77,12 @@ tplot <-{
     select(Gen,run,colnames(mcmc1)[colnames(mcmc1) %like% "t_n"]) %>% 
     pivot_longer(cols = colnames(mcmc1)[colnames(mcmc1) %like% "t_n"]) %>% 
     ggplot(., aes(x=Gen/1e6, 
-                  y=value*100, 
+                  y=value, 
                   color=run)) +
       geom_line(size=1.2, alpha=0.7) +
       scale_color_manual(values=c("Run_1"="blue", 
                                   "Run_2"="orange",
-                                  "Run_3"="yellow")) +
+                                  "Run_3"="green4")) +
       facet_wrap(~name) +
       theme_bw() +
       labs(x="MCMC Generation (Million)",
