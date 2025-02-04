@@ -16,6 +16,7 @@ process runOrthoFinder {
 
     output:
         path "*"
+        val "${params.out}/longest_orf/primary_transcripts", emit: fasta_dir
 
     script:
         """

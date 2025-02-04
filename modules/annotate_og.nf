@@ -9,7 +9,7 @@ process annotateOrthogroups {
     publishDir "${params.out}/orthogroups_annotation", mode: 'copy'
 
     input:
-        path(orthofinder_results)
+        path(fasta_dir)
 
     output:
         path("hogs.*.function.tsv")
@@ -21,9 +21,9 @@ process annotateOrthogroups {
 
         # Annotate Orthogroups
         annotate_orthogroups \\
-            --orthogroups_tsv ${params.out}/OrthoFinder/*/Phylogenetic_Hierarchical_Orthogroups/N0.tsv \\
+            --orthogroups_tsv ${params.out}/longest_orf/primary_transcripts/OrthoFinder/*/Phylogenetic_Hierarchical_Orthogroups/N0.tsv \\
             --hog True \\
-            --fasta_dir ${orthofinder_results} \\
+            --fasta_dir ${fasta_dir} \\
             --file_endings faa \\
             --out hogs.function.tsv \\
             --simple True

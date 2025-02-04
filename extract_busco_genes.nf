@@ -256,4 +256,9 @@ workflow {
     runCAFE_4(filterHogs.out,
               plotMCMCtree.out.cafe_input_tree,
               "-e -o r1_e_hogs")
+
+    // 12) Run enrichment tests
+
+    // 13) Run selection tests
+    
 }

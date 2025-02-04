@@ -97,6 +97,6 @@ workflow {
     def orthofinder = runOrthoFinder(longest_transcripts_dirs)
 
     // Annotate Orthogroups and generate plots
-    def annot_of = annotateOrthogroups(orthofinder)
-
+    def annot_of = annotateOrthogroups(orthofinder.fasta_dir)
+    
 }

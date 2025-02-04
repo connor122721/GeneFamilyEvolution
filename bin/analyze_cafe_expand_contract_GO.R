@@ -26,49 +26,48 @@ themei <- (
           axis.title = element_text(face="bold", size=20)))
 
 # Read significant trees
-tre <- read.nexus(file="Significant_trees.edit.tre")
+setwd("/project/berglandlab/connor/GeneFamilyEvolution/")
+tre <- read.nexus(file="output/cafe/r1_hogs/Significant_trees.tre")
 
 # Hog -> OG metadata
-og <- data.table(fread("N0.orthofinder.tsv"))
+og <- data.table(fread("output/longest_orf/primary_transcripts/OrthoFinder/Results_Feb01/Phylogenetic_Hierarchical_Orthogroups/N0.tsv"))
 
 # Hogs annotation
-hog.ann <- data.table(fread("hogs.function.tsv") %>% 
+hog.ann <- data.table(fread("output/orthogroups_annotation/hogs.function.tsv") %>% 
                         left_join(og, by=c("Gene"="HOG")))
 
 # Open tree data and add change
 annotate_tree <- function(tree.i) {
+  # tree.i=tre[[12]]
 
   # Read in tree
   tree <- data.table(File=as.character(tree.i$tip.label))
   
   # Extract naming
   tree1 <- data.table(tree %>%
-                     mutate(spp=tstrsplit(File,"-",fixed=T)[[1]],
-                            num=gsub(x = tstrsplit(File,"-",fixed=T)[[2]],
-                                     pattern = "*", 
-                                     fixed = T, 
-                                     replacement = "")))
+                     mutate(spp = tstrsplit(File,"<", fixed=T)[[1]],
+                            num = tstrsplit(File, "_", fixed=T)[[2]]))
   
   tree2 <- tree1 %>% 
     mutate(sig=case_when(File %in% tree1$File[grep(tree1$File, pattern="*", fixed=T)] ~ "*",
                          TRUE ~ ""))
   
-  nodei=abs(as.numeric(gsub(x = tree.i$node.label, pattern = "-*", "", fixed=T)))
+  nodei=abs(as.numeric(gsub(x = tree.i$node.label, pattern = "*", "", fixed=T)))
   
   tree3 <- tree2 %>% 
-    mutate(change.delt = case_when(spp %in% c("pulicaria", "pulex.nam")~as.numeric(num)-nodei[5],
+    mutate(change.delt = case_when(spp %in% c("pulicaria", "pulexnam")~as.numeric(num)-nodei[5],
                                    spp %in% c("sinensis", "magna")~as.numeric(num)-nodei[6],
                                    spp %in% c("galeata")~as.numeric(num)-nodei[3],
-                                   spp %in% c("pulex.euro")~as.numeric(num)-nodei[4],
+                                   spp %in% c("pulexeuro")~as.numeric(num)-nodei[4],
                                    spp %in% c("carinata")~as.numeric(num)-nodei[1])) %>% 
-    mutate(change.delt.col=case_when(spp %in% c("pulicaria", "pulex.nam") & as.numeric(num) > nodei[5] ~ "E",
-                                     spp %in% c("pulicaria", "pulex.nam") & as.numeric(num) < nodei[5] ~ "C",
+    mutate(change.delt.col=case_when(spp %in% c("pulicaria", "pulexnam") & as.numeric(num) > nodei[5] ~ "E",
+                                     spp %in% c("pulicaria", "pulexnam") & as.numeric(num) < nodei[5] ~ "C",
                                      spp %in% c("sinensis", "magna") & as.numeric(num) > nodei[6] ~ "E",
                                      spp %in% c("sinensis", "magna") & as.numeric(num) < nodei[6] ~ "C",
                                      spp %in% c("galeata") & as.numeric(num) > nodei[3] ~ "E",
                                      spp %in% c("galeata") & as.numeric(num) < nodei[3] ~ "C",
-                                     spp %in% c("pulex.euro")& as.numeric(num) > nodei[4] ~ "E",
-                                     spp %in% c("pulex.euro") & as.numeric(num) < nodei[4] ~ "C",
+                                     spp %in% c("pulexeuro")& as.numeric(num) > nodei[4] ~ "E",
+                                     spp %in% c("pulexeuro") & as.numeric(num) < nodei[4] ~ "C",
                                      spp %in% c("carinata") & as.numeric(num) > nodei[1] ~ "E",
                                      spp %in% c("carinata") & as.numeric(num) > nodei[1] ~ "C",
                                      TRUE ~ "S"))
@@ -173,7 +172,7 @@ GOtables_filenames <- list.files(pattern = "GOterm_mapping.tsv",
                                  full.names = TRUE)[-c(4,5,10)]
 
 # Parsing function (file to table)
-GOtable_parsing <- function(infile = blast2go.tsv){
+GOtable_parsing <- function(infile = blast2go.tsv) {
   # Extract Genome name from file name (specific to this file name structure)
   #infile=GOtables_filenames[3]
   

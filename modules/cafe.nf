@@ -58,9 +58,9 @@ process runCAFE {
         
         # Extract significant gene families
         echo \$'#nexus\nbegin trees;' > Significant_trees.tre
-        grep "*" */Base_asr.tre >> Significant_trees.tre
+        grep "*" */*asr.tre >> Significant_trees.tre
         echo "end;">> Significant_trees.tre
-        awk '\$2 < .05 {print \$0}' */Base_family_results.txt > Sig_at_p.05.txt
+        awk '\$2 < .05 {print \$0}' */*family_results.txt > Sig_at_p.05.txt
         mv Sig* r1*/
         """
 }
