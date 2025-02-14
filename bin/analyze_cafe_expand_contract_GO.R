@@ -1,4 +1,4 @@
-# Read significant trees from CAFE and do GO term enrichment testing
+# Read significant trees from CAFE5 and do GO term enrichment testing
 # Connor Murray 1.23.2024; modified 2.1.2025
 # module load gcc/11.4.0 openmpi/4.1.4 R/4.3.1; R
 
@@ -12,6 +12,10 @@ library(foreach)
 library(ggtree)
 library(viridis)
 library(clusterProfiler)
+library(parallel)
+library(argparse)
+cores <- 3
+cl <- parallel::makeCluster(cores)
 
 # Common theme element for plotting
 themei <- (
@@ -25,57 +29,99 @@ themei <- (
           axis.title.y = element_text(face="bold", size=20),
           axis.title = element_text(face="bold", size=20)))
 
-# Read significant trees
-setwd("/project/berglandlab/connor/GeneFamilyEvolution/")
-tre <- read.nexus(file="output/cafe/r1_hogs/Significant_trees.tre")
+# Add argparse to parse command line arguments
+parser <- ArgumentParser()
+parser$add_argument("--cafe_dir", default="output/cafe", help="Path to CAFE result directory")
+args <- parser$parse_args()
+
+# Use the parsed argument instead of the hardcoded value
+cafe_dir <- args$cafe_dir
+# cafe_dir = "/project/berglandlab/connor/GeneFamilyEvolution/output/cafe/"
+
+# Define directory and list CAFÉ result text files
+result_files <- list.files(cafe_dir, "results.txt$", recursive = TRUE, full.names = TRUE)
+
+# Function to extract -lnL from a file
+extract_lnL <- function(file) {
+  lines <- readLines(file)
+  lnL_line <- grep("-lnL", lines, value = TRUE)
+  if (!length(lnL_line)) lnL_line <- grep("lnL", lines, value = TRUE)
+  if (!length(lnL_line)) return(NA_real_)
+  as.numeric(sub(".*?(-?\\d+\\.?\\d*).*", "\\1", lnL_line[1]))
+}
+
+# Extract likelihoods and identify the best run
+lnL_vals <- sapply(result_files, extract_lnL)
+if (all(is.na(lnL_vals))) stop("No -lnL values found in any .txt file.")
+best_file <- result_files[which.min(lnL_vals)]
+cat("Best run:", best_file, "with -lnL =", lnL_vals[which.min(lnL_vals)], "\n")
+
+# Load significant trees from the best run folder
+tre_file <- file.path(dirname(best_file), "Significant_trees.tre")
+if (!file.exists(tre_file)) stop("File not found:", tre_file)
+tre <- read.nexus(tre_file)
 
 # Hog -> OG metadata
-og <- data.table(fread("output/longest_orf/primary_transcripts/OrthoFinder/Results_Feb01/Phylogenetic_Hierarchical_Orthogroups/N0.tsv"))
+og <- data.table(fread("/project/berglandlab/connor/GeneFamilyEvolution/output/longest_orf/primary_transcripts/OrthoFinder/Results_Feb04/Phylogenetic_Hierarchical_Orthogroups/N0.tsv"))
+colnames(og)[3] <- "Gene_Tree" 
 
 # Hogs annotation
-hog.ann <- data.table(fread("output/orthogroups_annotation/hogs.function.tsv") %>% 
+hog.ann <- data.table(fread("/project/berglandlab/connor/GeneFamilyEvolution/output/orthofinder/hogs.function.tsv") %>% 
                         left_join(og, by=c("Gene"="HOG")))
+colnames(hog.ann)[4] <- "Gene_Tree" 
 
-# Open tree data and add change
+# A helper to extract the gene count from a CAFE5 annotated tree.
+extract_count <- function(label) {
+  as.numeric(gsub(".*_", "", label))
+}
+
+# New annotate_tree function: 
 annotate_tree <- function(tree.i) {
-  # tree.i=tre[[12]]
-
-  # Read in tree
-  tree <- data.table(File=as.character(tree.i$tip.label))
   
-  # Extract naming
-  tree1 <- data.table(tree %>%
-                     mutate(spp = tstrsplit(File,"<", fixed=T)[[1]],
-                            num = tstrsplit(File, "_", fixed=T)[[2]]))
+  # tree.i is assumed to be a "phylo" object from CAFE5.
+  ntip <- length(tree.i$tip.label)
   
-  tree2 <- tree1 %>% 
-    mutate(sig=case_when(File %in% tree1$File[grep(tree1$File, pattern="*", fixed=T)] ~ "*",
-                         TRUE ~ ""))
+  # Build a data.table with the tip labels and tip indices.
+  tip_dt <- data.table(File = tree.i$tip.label,
+                       tip_index = 1:ntip)
   
-  nodei=abs(as.numeric(gsub(x = tree.i$node.label, pattern = "*", "", fixed=T)))
+  # Extract species name and gene count from the tip label.
+  # For example, a tip like "anopheles<1>_2" will yield spp = "anopheles" and tip_count = 2.
+  tip_dt <- data.table(tip_dt %>%
+    mutate(spp = tstrsplit(File, "<", fixed = TRUE)[[1]],
+           tip_count = as.numeric(tstrsplit(File, "_", fixed = TRUE)[[2]])))
   
-  tree3 <- tree2 %>% 
-    mutate(change.delt = case_when(spp %in% c("pulicaria", "pulexnam")~as.numeric(num)-nodei[5],
-                                   spp %in% c("sinensis", "magna")~as.numeric(num)-nodei[6],
-                                   spp %in% c("galeata")~as.numeric(num)-nodei[3],
-                                   spp %in% c("pulexeuro")~as.numeric(num)-nodei[4],
-                                   spp %in% c("carinata")~as.numeric(num)-nodei[1])) %>% 
-    mutate(change.delt.col=case_when(spp %in% c("pulicaria", "pulexnam") & as.numeric(num) > nodei[5] ~ "E",
-                                     spp %in% c("pulicaria", "pulexnam") & as.numeric(num) < nodei[5] ~ "C",
-                                     spp %in% c("sinensis", "magna") & as.numeric(num) > nodei[6] ~ "E",
-                                     spp %in% c("sinensis", "magna") & as.numeric(num) < nodei[6] ~ "C",
-                                     spp %in% c("galeata") & as.numeric(num) > nodei[3] ~ "E",
-                                     spp %in% c("galeata") & as.numeric(num) < nodei[3] ~ "C",
-                                     spp %in% c("pulexeuro")& as.numeric(num) > nodei[4] ~ "E",
-                                     spp %in% c("pulexeuro") & as.numeric(num) < nodei[4] ~ "C",
-                                     spp %in% c("carinata") & as.numeric(num) > nodei[1] ~ "E",
-                                     spp %in% c("carinata") & as.numeric(num) > nodei[1] ~ "C",
-                                     TRUE ~ "S"))
+  # For each tip, find the parent node from the tree's edge matrix.
+  # The edge matrix has two columns: [parent, child].
+  # We match the tip index (child) and extract the parent's index.
+  tip_dt[, parent_index := tree.i$edge[match(tip_index, tree.i$edge[,2]), 1]]
   
+  # Get the parent's label.
+  # In ape objects, tip indices are 1...ntip and node indices are (ntip+1):(ntip+nnode).
+  # If parent's index > ntip, then parent's label is in tree.i$node.label at position (parent_index - ntip).
+  tip_dt[, parent_label := ifelse(parent_index > ntip,
+                                  tree.i$node.label[parent_index - ntip],
+                                  tree.i$tip.label[parent_index])]
+  
+  # Extract the parent's gene count.
+  tip_dt[, parent_count := extract_count(parent_label)]
+  
+  # Compute the difference: (tip gene count) minus (parent gene count).
+  tip_dt[, change_delt := tip_count - parent_count]
+  
+  # Label the change: "E" for expansion (if tip count is higher), "C" for contraction (if lower),
+  # and "S" for same.
+  tip_dt[, change_delt_col := ifelse(change_delt > 0, "E",
+                                     ifelse(change_delt < 0, "C", "S"))]
+  
+  # Optionally, mark if the original tip label contains a "*" (as in your previous code).
+  tip_dt[, sig := ifelse(grepl("\\*", File), "*", "")]
+  
+  return(tip_dt)
 }
 
 # Extract name
-tree.ann <- lapply(tre, annotate_tree)
+tree.ann <- mclapply(tre, annotate_tree, mc.cores = cores)
 tree.dt <- data.table(rbindlist(tree.ann, use.names = T, fill=T, idcol = "tree"))
 tree.tally <- data.table(tree.dt %>%
                 group_by(tree) %>%
@@ -86,14 +132,14 @@ tree.tally <- data.table(tree.dt %>%
 # Count NUmber of significant changes and add metadata
 tree.dt1 <- data.table(tree.dt %>% 
               group_by(tree) %>%
-              summarize(mean=mean(change.delt)) %>%
+              summarize(mean=mean(change_delt)) %>%
               left_join(tree.tally)  %>% 
               left_join(hog.ann, by=c("tree"="Gene")))
 
 #### EXPANDED AND CONTRACTED GENES ####
 
 # Expanded gene families
-expand <- data.table(tree.dt[change.delt>0][sig=="*"] %>%
+expand <- data.table(tree.dt[change_delt>0][sig=="*"] %>%
                        left_join(tree.tally)  %>% 
                        left_join(hog.ann, by=c("tree"="Gene")))
 
@@ -117,7 +163,7 @@ extract.expanding.genes <- function(spp.i) {
 ext.list <- lapply(unique(tree.dt$spp), FUN=extract.expanding.genes)
 
 # Contracted genes
-contract <- data.table(tree.dt[change.delt<0][sig=="*"] %>%
+contract <- data.table(tree.dt[change_delt<0][sig=="*"] %>%
                          left_join(tree.tally)  %>% 
                          left_join(hog.ann, by=c("tree"="Gene")))
 
@@ -139,18 +185,13 @@ extract.contract.genes <- function(spp.i) {
 
 con.list <- lapply(unique(tree.dt$spp), FUN=extract.contract.genes)
 
-
-# saveRDS(contract, file = "/scratch/csm6hg/data/contracted.genes.sep7.rds")
-# saveRDS(expand, file = "/scratch/csm6hg/data/expanded.genes.sep7.rds")
-
-# Read in data
-# contract <- data.table(readRDS("contracted.genes.sep7.rds"))
-# expand <- data.table(readRDS("expanded.genes.sep7.rds"))
+# Save output
+saveRDS(contract, file = "contracted.genes.rds")
+saveRDS(expand, file = "expanded.genes.rds")
 
 ############## ENRICHMENT ###############
 
-# read in table of genes belonging to orthogroups, select significant OGs
-# and parse into gene lists
+# read in table of genes belonging to orthogroups, select significant OGs and parse into gene lists
 gene_lists_tbl_contract <- og %>%
   filter(HOG %in% contract[Gene_Tree=="n0"]$tree) %>%
   dplyr::select(-c(HOG,OG,Gene_Tree))
@@ -168,8 +209,9 @@ get_gene_list <- function(genome = "string"){
 }
 
 # Annotation files from Blast2GO/OmicsBox
-GOtables_filenames <- list.files(pattern = "GOterm_mapping.tsv",  
-                                 full.names = TRUE)[-c(4,5,10)]
+GOtables_filenames <- list.files(path = "/project/berglandlab/connor/GeneFamilyEvolution/output/orthogroups_annotation", 
+                                 pattern = "GOterm_mapping.tsv",  
+                                 full.names = TRUE)
 
 # Parsing function (file to table)
 GOtable_parsing <- function(infile = blast2go.tsv) {
@@ -193,64 +235,78 @@ GOtable_parsing <- function(infile = blast2go.tsv) {
   return(GOtable)
 }
 
-# Parsing function (table to GeneSetCollection)
-GeneSetCollection_constructor <- function(genome_GO_table = GOtable){
-  #genome_GO_table=GO_tables[[3]]
+# Create a simplified GO data frame
+GeneSetCollection_constructor <- function(genome_GO_table = GOtable) {
+  #genome_GO_table=GO_tables[[1]]
   
-  go_df_simple <- data.table(genome_GO_table %>%
-                               dplyr::select(GO_ID, GeneID) %>%
-                               filter(!is.na(GO_ID)))
+  go_df_simple <- genome_GO_table %>%
+    dplyr::select(gene = GeneID, GO = GO_ID) %>%
+    filter(!is.na(GO)) %>%
+    as.data.frame()
   
+  # Extract species name from the Genome column
   go_species <- genome_GO_table %>%
     dplyr::select(Genome) %>% 
-    unique() %>% unlist() %>% unname()
+    unique() %>% 
+    unlist() %>% 
+    unname()
   
-  # Run once - takes ~ 1hr
-  gmap <- buildGOmap(gomap = go_df_simple)
-  saveRDS(gmap, file = paste("gmap.", go_species, ".rds", sep=""))
+  # Build and save the GO map
+  gmap <- buildGOmap(go_df_simple)
+  saveRDS(gmap, file = paste0("gmap.", go_species, ".rds"))
   
+  # Create the full gene universe.
   full_universe <- genome_GO_table %>%
     dplyr::select(GeneID) %>%
-    unique() %>% unlist() %>% unname()
-  
-  return(full_universe)
-}
-
-# Parse GO data table and make ready for clusterprofiler
-GO_tables <- lapply(GOtables_filenames, GOtable_parsing)
-full_gene_sets <- lapply(GO_tables, GeneSetCollection_constructor)
-names(full_gene_sets) <- purrr::map(full_gene_sets, "Species")
-
-# Enrichment analysis function
-go.test.clusterpro <- function(full_set, gene_lists_tbl_test, namei) {
-  # full_set=full_gene_sets[[3]]; gene_lists_tbl_test=gene_lists_tbl_contract; namei="contract"
-  
-  # Extract species ID
-  go_species <- data.table(gene=full_set) %>%
-    mutate(spp=tstrsplit(gene, "_")[[1]]) %>% 
-    dplyr::select(spp) %>% unique() %>% unlist() %>% unname()
+    unique() %>%
+    unlist() %>%
+    unname()
   
   print(go_species)
   
-  # GO analysis
-  gene.cand <- gene_lists_tbl_test %>% 
-    dplyr::select(paste(go_species, ".protein",sep="")) %>% 
-    unlist(use.names = F) %>% 
-    strsplit(., split=",") %>%
+  return(list(Species = go_species, 
+              Universe = full_universe))
+}
+
+# Parse GO data table and make ready for clusterprofiler
+GO_tables <- mclapply(GOtables_filenames, GOtable_parsing, mc.cores = cores)
+full_gene_sets <- mclapply(GO_tables, GeneSetCollection_constructor, mc.cores = cores)
+names(full_gene_sets) <- purrr::map_chr(full_gene_sets, ~ .x$Species[1])
+
+print("Running GOTerm Enrichment!")
+
+# Enrichment analysis function
+go.test.clusterpro <- function(full_set, gene_lists_tbl, namei) {
+  # full_set=full_gene_sets[[6]]; gene_lists_tbl=gene_lists_tbl_expand[[6]]; namei="expand"
+  
+  # Extract species ID (assumes full_set contains a Species field)
+  go_species <- data.table(gene = full_set$Universe) %>%
+    mutate(spp = full_set$Species) %>% 
+    dplyr::select(spp) %>% unique() %>% unlist() %>% unname()
+  
+  print(go_species)
+  print(namei)
+  
+  # Build candidate gene list using the appropriate column from gene_lists_tbl
+  gene.cand <- gene_lists_tbl %>% 
     unlist() %>% 
-    paste(go_species, "_", ., sep="") %>% 
-    gsub(., pattern = " ", replacement = "") %>% 
+    strsplit(split = ",") %>%
     unlist() %>% 
+    paste0(go_species, "_", .) %>% 
+    gsub(pattern = " ", replacement = "") %>% 
     unique()
   
-  # Universe - longest transcript proteins
-  univ <- full_gene_sets[full_gene_sets %like% go_species][[1]] %>% unique() %>% unlist()
+  # Universe: the set of longest transcript proteins (unique)
+  univ <- unique(full_set$Universe)
   
-  spp.gmap = readRDS(list.files(path = "", 
-                                pattern = paste("gmap.", go_species,".rds", sep=""), 
-                                full.names = T))
+  # Load species-specific gene-to-GO mapping file
+  spp_gmap_file <- list.files(pattern = paste0("gmap.", go_species, ".rds"), full.names = TRUE)
+  if (length(spp_gmap_file) == 0) {
+    stop("No gene mapping file found for species: ", go_species)}
   
-  # Test enrichment
+  spp.gmap <- readRDS(spp_gmap_file[1])
+  
+  # Enrichment test using clusterProfiler's enricher()
   go.test <- enricher(gene = gene.cand,
                       pvalueCutoff = 0.05,
                       pAdjustMethod = "fdr",
@@ -258,87 +314,82 @@ go.test.clusterpro <- function(full_set, gene_lists_tbl_test, namei) {
                       maxGSSize = 500,
                       qvalueCutoff = 0.01,
                       universe = univ, 
-                      TERM2GENE = spp.gmap)
+                      TERM2GENE = spp.gmap %>% dplyr::select(GO, gene))
   
-  # Find term description for each GO term
-  go.test2 <- data.table(go.test@result) %>% filter(p.adjust<0.05)
-  pp <- foreach(i=1:length(go.test2$ID), .combine = "rbind", .errorhandling = "remove") %do% {
-    tmp.df = go.test2 %>%
-      filter(ID == go.test2$ID[i])
-    
-    message(paste(i, go.test2$ID[i], sep = " | "))
-    
-    go.test2[ID==go.test2$ID[i]] %>% 
-      mutate(term=go2term(ID)$Term) %>% 
-      mutate(x = eval(parse(text=GeneRatio)),
-             y = eval(parse(text=BgRatio))) %>% 
-      mutate(odd = x/y)
+  go.test2 <- data.table(go.test@result) %>% filter(p.adjust < 0.05)
+  
+  # Iterate over each enriched GO term to compute odds ratios and add term descriptions
+  pp <- foreach(i = seq_len(nrow(go.test2)), .combine = "rbind", .errorhandling = "remove") %do% {
+    current_id <- go.test2$ID[i]
+    message(paste(i, current_id, sep = " | "))
+    go.test2[ID == current_id] %>% 
+      mutate(term = go2term(ID)$Term,          # Make sure go2term() is defined
+             x = eval(parse(text = GeneRatio)),
+             y = eval(parse(text = BgRatio)),
+             odd = x / y)}
+  
+  # Plot enriched GO terms
+  plot.go <- { pp %>% 
+    filter(p.adjust < 0.05) %>% 
+    arrange(desc(p.adjust)) %>% 
+    ggplot(aes(x = log2(odd),
+               y = reorder(term, log2(odd)),
+               size = Count,
+               color = log10(p.adjust))) +
+    geom_point() +
+    labs(x = "log2(Enrichment)", 
+         y = "",
+         color = "FDR P-value",
+         size = "Candidate gene number") +
+    theme_bw() +
+    scale_color_viridis(option = "magma") +
+    theme(title = element_text(face = "bold", size = 15),
+          legend.text = element_text(face = "bold", size = 14),
+          legend.title = element_text(face = "bold", size = 16),
+          legend.background = element_blank(),
+          axis.text.x = element_text(face = "bold", size = 15),
+          axis.text.y = element_text(face = "bold", size = 15),
+          axis.title.x = element_text(face = "bold", size = 18),
+          axis.title.y = element_text(face = "bold", size = 18))
   }
   
-  plot.go <- {pp %>% 
-      filter(p.adjust < 0.05) %>% 
-      arrange(desc(p.adjust)) %>% 
-      ggplot(aes(x = log2(odd),
-                 y = reorder(term, log2(odd)),
-                 size = Count,
-                 color = log10(p.adjust))) +
-      geom_point() +
-      labs(x="log2(Enrichment)", 
-           y="",
-           color="FDR P-value",
-           size="Candidate gene number") +
-      theme_bw() +
-      scale_color_viridis(option="magma") +
-      #paletteer::scale_color_paletteer_c("gameofthrones::targaryen") +
-      theme(title = element_text(face="bold", size=15),
-            legend.text = element_text(face="bold", size=14),
-            legend.title = element_text(face="bold", size=16),
-            legend.background = element_blank(),
-            axis.text.x = element_text(face="bold", size=15),
-            axis.text.y = element_text(face="bold", size=15),
-            axis.title.x = element_text(face="bold", size=18),
-            axis.title.y = element_text(face="bold", size=18))}
+  ggsave(plot = plot.go, 
+    filename = paste0(namei, ".", go_species, ".goterm.cafe.pdf"), 
+    width = 20, height = 12)
   
-  ggsave(plot.go, filename = paste(namei,".", go_species,".goterm.cafe.pdf", sep=""), width=20, height=12)
+  # Write output for REVIGO
+  fwrite(pp %>% select(ID, p.adjust, odd), 
+         file = paste0(go_species, ".", namei, ".revigo.cafe.txt"), 
+         quote = FALSE, sep = "\t")
   
-  # Write list for REVIGO 
-  fwrite(x = pp %>% 
-           select(ID, p.adjust, odd), 
-         file = paste(namei,".", go_species,".goterm.cafe.revigo.txt", sep=""), 
-         quote = F, row.names = F, col.names = F, sep = "\t")
-  
-  # Finish
   return(pp)
-  
 }
 
-# Output enriched GO terms - contracted genes: go.out.con <- go.out
-go.out.con <- lapply(c(full_gene_sets, gene_lists_tbl_contract, "contract"), 
-                 FUN = go.test.clusterpro)
+go.out.con <- lapply(full_gene_sets,
+                     go.test.clusterpro,
+                     gene_lists_tbl = gene_lists_tbl_contract,
+                     namei = "contract")
 
-# Output enriched GO terms - expanded genes
-go.out.exp <- lapply(c(full_gene_sets, gene_lists_tbl_expand, "expanded"), 
-                 FUN = go.test.clusterpro)
-
-# Output enriched GO terms for extractions & contractions
-go.out.con <- lapply(con.list[-c(1,2,10)], go.test.clusterpro, set="contract")
-go.out.exp <- lapply(ext.list[-c(1,2,10)], go.test.clusterpro, set="expand")
+go.out.exp <- lapply(full_gene_sets,
+                     go.test.clusterpro,
+                     gene_lists_tbl = gene_lists_tbl_expand,
+                     namei = "expanded")
 
 # Add GO term reduction
-revigo_list_contract <- list.files(pattern = "contract.feb13.revigo", full.names = T)
-revigo_list_expand <- list.files(pattern = "expand.feb13.revigo", full.names = T)
+revigo_list_contract <- list.files(pattern = "contract.revigo")
+revigo_list_expand <- list.files(pattern = "expand.revigo")
 
 # Semantic reduction
 library(rrvgo)
 
+# Function for redundancy
 reduce.go <- function(go_list_enriched) {
-  # gene_list_enriched=revigo_list_expand[[3]]
+  # gene_list_enriched=revigo_list_contract[[1]]
   
   # Extract species ID
   geneii=data.table(fread(gene_list_enriched))
   colnames(geneii) <- c("ID", "qvalue", "OR")
-  go_species <- tstrsplit(gsub(x=gene_list_enriched, 
-                               pattern="/scratch/csm6hg/data/",""),".", fixed=T)[[1]]
+  go_species <- tstrsplit(gene_list_enriched, ".", fixed=T)[[1]]
   print(go_species)
   
   # Conditional based on length
@@ -349,9 +400,7 @@ reduce.go <- function(go_list_enriched) {
     
     # Sim reduction
     simMatrix <- calculateSimMatrix(geneii$ID,
-                                    orgdb="org.Dm.eg.db",
-                                    ont="BP",
-                                    method="Rel")
+                                    orgdb="org.Dm.eg.db")
     
     # Fin reduced
     scores <- setNames(-log10(geneii$qvalue), 
@@ -374,37 +423,11 @@ reduce.go <- function(go_list_enriched) {
 }
 
 # Output redueced GO terms - reduce based on Drosophila melanogaster GO mapping
-go.reduce.out.con <- lapply(go.out.con, reduce.go, mc.cores = threads)
+#go.reduce.out.con <- mclapply(go.out.con, reduce.go, mc.cores = cores)
 
 # Finalize output
-go.reduce.fin.con <- data.table(rbindlist(go.reduce.out.con, fill=T))
+#go.reduce.fin.con <- data.table(rbindlist(go.reduce.out.con, fill=T))
 
 # Save output
-saveRDS(go.reduce.out.con, file = "reduced.terms.contracting.rds")
-saveRDS(go.reduce.out.con, file = "reduced.terms.expanding.rds")
-
-
-
-
-### Rapidly evolving gene familes ###
-
-# What are the most common GO terms in the rapidly evolving gene set?
-rap <- list.files(path = "../data/",pattern = "sep9.revigo.txt", full.names = T)
-rapi <- data.table(rbindlist(lapply(rap, fread), idcol=T))
-colnames(rapi) <- c("spp", "GO", "p", "OR")
-rapii <- data.table(rapi %>% 
-          group_by(GO) %>% 
-          count(GO))
-
-# Rename species
-rapi.o <- rapi %>%
-  mutate(spp=case_when(spp==1 ~ "Carinata",
-                        spp==2 ~ "Galeata",
-                        spp==3 ~ "Magna",
-                        spp==4 ~ "Pulex_euro",
-                        spp==5 ~ "Pulex_nam",
-                        spp==6 ~ "Pulicaria",
-                        spp==7 ~ "Sinensis"))
-
-# Write table data
-#write.csv(rapi.o, file = "../data/rapidlyevolving.csv")
+#saveRDS(go.reduce.out.con, file = "reduced.terms.contracting.rds")
+#saveRDS(go.reduce.out.con, file = "reduced.terms.expanding.rds")

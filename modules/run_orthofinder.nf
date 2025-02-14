@@ -15,7 +15,8 @@ process runOrthoFinder {
         path longest_transcripts_dir
 
     output:
-        path "*"
+        path "orthofinder_results*"
+        path "hogs.function.tsv"
         val "${params.out}/longest_orf/primary_transcripts", emit: fasta_dir
 
     script:
@@ -24,8 +25,8 @@ process runOrthoFinder {
         source activate msprime_env
 
         # Exception species conditional statement
-        if [[ ${longest_transcripts_dir}/pulexeuro_orf.protein.faa ]]; then
-            mv ${longest_transcripts_dir}/pulexeuro_orf.protein.faa \\
+        if [[ ${longest_transcripts_dir}/pulexeuro_rename.protein.faa ]]; then
+            mv ${longest_transcripts_dir}/pulexeuro_rename.protein.faa \\
             ${longest_transcripts_dir}/pulexeuro.protein.faa
         fi
 
@@ -34,5 +35,17 @@ process runOrthoFinder {
             -f ${longest_transcripts_dir} \\
             -t ${params.of_threads} \\
             -a ${params.of_threads}
+
+        mv primary_transcripts/OrthoFinder/Results*/ \\
+            orthofinder_results
+
+        # Annotate Orthogroups
+        annotate_orthogroups \\
+            --orthogroups_tsv primary_transcripts/OrthoFinder/*/Phylogenetic_Hierarchical_Orthogroups/N0.tsv \\
+            --hog True \\
+            --fasta_dir ${longest_transcripts_dir} \\
+            --file_endings faa \\
+            --out hogs.function.tsv \\
+            --simple True
         """
 }

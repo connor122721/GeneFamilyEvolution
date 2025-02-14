@@ -1,0 +1,69 @@
+Bootstrap: docker
+From: ubuntu:20.04
+
+%labels
+    Author Connor S. Murray
+    Version 1.0
+
+%files
+    environment.yml .
+
+%post
+    # Make process non-interactive
+    export DEBIAN_FRONTEND=noninteractive
+    VERSION=4.3.1
+
+    # Update and install basic dependencies
+    apt-get update && apt-get install -y \
+        build-essential \
+        libcurl4-openssl-dev \
+        libssl-dev \
+        libxml2-dev \
+        libgit2-dev \
+        libxt-dev \
+        libfontconfig1-dev \
+        libharfbuzz-dev \
+        libfribidi-dev \
+        libfreetype6-dev \
+        libpng-dev \
+        libtiff5-dev \
+        libjpeg-dev \
+        zlib1g-dev \
+        libglpk-dev \
+        libgmp3-dev \
+        libmpfr-dev \
+        libopenmpi-dev \
+        openmpi-bin \
+        r-base-core=${VERSION} \
+        r-base-html=${VERSION} \
+        r-doc-html=${VERSION} \
+        wget \
+        curl \
+        tar \
+        bzip2 \
+        git \
+        vim \
+        python3 \
+        python3-pip \
+        python3-venv \
+        mafft \
+        iqtree \
+        samtools
+
+    # Install mamba
+    curl -Ls https://micro.mamba.pm/api/micromamba/linux-64/latest | tar -xvj bin/micromamba
+    eval "$(./bin/micromamba shell hook -s posix)"
+    micromamba create -n gene_family_evolution -f environment.yml
+    micromamba activate gene_family_evolution
+
+    # Install Python packages
+    pip install biopython
+
+    # Install R packages
+    # R -e "BiocManager::install(c('MCMCtreeR', 'AnnotationDbi', 'ggtree', 'DOSE', 'enrichplot', 'fgsea', 'clusterProfiler'))"
+
+%environment
+    export PATH=/usr/local/bin:$PATH
+
+%runscript
+    exec "$@"

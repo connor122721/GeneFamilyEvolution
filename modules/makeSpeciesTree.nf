@@ -159,6 +159,5 @@ process plotMCMCtree {
         module load gcc/11.4.0 openmpi/4.1.4 R/4.3.1
         Rscript ${params.scripts_dir}/processMCMCtree.R
         mv Rplots.pdf MCMCtree.pdf
-        
         """
 }

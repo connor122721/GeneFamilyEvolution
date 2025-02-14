@@ -39,6 +39,7 @@ process runBusco {
         val "${params.out}/busco_results/", emit: busco_dir
         path "short_summary*txt"
         path "full_table_${species}.tsv"
+        val "${species}", emit: species
 
     script:
         """
@@ -47,7 +48,7 @@ process runBusco {
         # Run BUSCO with local data
         apptainer run ${params.sif_dir}/busco_v5.4.7_cv1.sif \\
             busco \\
-            -i ${params.rawpro}/${samp} \\
+            -i ${params.out}/genomes/proteomes/${samp} \\
             -c ${params.threads} \\
             -l ${params.busco_lineage} \\
             -o ${species} \\
