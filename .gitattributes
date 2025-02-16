@@ -6,3 +6,4 @@
 *.py linguist-detectable
 *.pl linguist-detectable
 *.R linguist-detectable
+*.html linguist-vendored
