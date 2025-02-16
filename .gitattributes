@@ -1,2 +1,8 @@
-# Auto detect text files and perform LF normalization
-* text=auto
+# Explicitly set the language for specific file types
+*.md linguist-documentation
+*.nf linguist-detectable
+*.sh linguist-detectable
+*.ctl linguist-detectable
+*.py linguist-detectable
+*.pl linguist-detectable
+*.R linguist-detectable
