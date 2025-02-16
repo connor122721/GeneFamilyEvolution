@@ -1,4 +1,12 @@
 # Gene Family Evolution in _Daphnia_
+
+![Nextflow](https://img.shields.io/badge/Nextflow-DSL2-brightgreen?style=for-the-badge)
+![License: MIT](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)
+![Profile: Slurm](https://img.shields.io/badge/Profile-Slurm-orange?style=for-the-badge)
+![Repo Size](https://img.shields.io/github/repo-size/connor122721/GeneFamilyEvolution?style=for-the-badge)
+![# Languages](https://img.shields.io/github/languages/count/connor122721/GeneFamilyEvolution?style=for-the-badge)
+![Top Language](https://img.shields.io/github/languages/top/connor122721/GeneFamilyEvolution?style=for-the-badge)
+
 This repository analyzes gene family dynamics in _Daphnia_ species, focusing on gene family expansion and contraction related to ecological adaptation and evolutionary innovation. This pipeline can be applied to any combination of species that is well-annotated (or custom gene models!) within the NCBI genome catalog. 
 
 ## Pipeline Overview
