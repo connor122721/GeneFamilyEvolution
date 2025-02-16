@@ -45,6 +45,13 @@ process runBusco {
         """
         module load apptainer/1.3.4
 
+        # Determine BUSCO lineage
+        #if [ ${species} == "caenorhabditis" ]; then
+        #    lineage="nematoda_odb10"
+        #else
+        #    lineage="${params.busco_lineage}"
+        #fi
+
         # Run BUSCO with local data
         apptainer run ${params.sif_dir}/busco_v5.4.7_cv1.sif \\
             busco \\
@@ -57,8 +64,8 @@ process runBusco {
             --download_path ${params.busco_data}
 
         # Rename full_table.tsv to include species name
-        mv ${species}/run_arthropoda_odb10/full_table.tsv full_table_${species}.tsv
-        mv ${species}/short_summary.specific.arthropoda_odb10.${species}.txt .
+        mv ${species}/run_*/full_table.tsv full_table_${species}.tsv
+        mv ${species}/short_summary.specific*${species}.txt .
         """
 }
 

@@ -2,14 +2,14 @@
 
 nextflow.enable.dsl=2
 
-// Extract species names from protein file paths
+// Extract species names from the ncbi_genomes file
 Channel
-    .fromPath(params.protein_list)
+    .fromFilePairs(params.ncbi_genomes)
     .splitText()
-    .map { file -> 
-        def species = file.tokenize('/').last().tokenize('.').first()
-        species
-    }
+    .map { line -> 
+        def columns = line.split('\t')
+        def species = columns[1]
+        species}
     .set { species }
 
 // Extracting BUSCO genes

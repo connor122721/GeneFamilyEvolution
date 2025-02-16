@@ -34,14 +34,15 @@ process runOrthoFinder {
         orthofinder \\
             -f ${longest_transcripts_dir} \\
             -t ${params.of_threads} \\
-            -a ${params.of_threads}
+            -a ${params.of_threads} \\
+            -o orf
 
-        mv primary_transcripts/OrthoFinder/Results*/ \\
+        mv orf/Results*/ \\
             orthofinder_results
 
         # Annotate Orthogroups
         annotate_orthogroups \\
-            --orthogroups_tsv primary_transcripts/OrthoFinder/*/Phylogenetic_Hierarchical_Orthogroups/N0.tsv \\
+            --orthogroups_tsv orthofinder_results/Phylogenetic_Hierarchical_Orthogroups/N0.tsv \\
             --hog True \\
             --fasta_dir ${longest_transcripts_dir} \\
             --file_endings faa \\

@@ -40,9 +40,9 @@ files.bus <- list.files(recursive = T,
 
 # Metadata
 meta <- fread(metadata, header=F) %>% 
-  mutate(species = basename(V1) %>% 
-  str_remove(".protein.faa"), group = V2, fasta=V1) %>% 
-  select(species, group, fasta)
+  mutate(species = V2, 
+         group = V3) %>% 
+  select(species, group)
 
 # Read in busco files
 l <- lapply(files.bus, fread, skip=2, fill=TRUE, sep="\t")
