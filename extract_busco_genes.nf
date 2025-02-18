@@ -4,12 +4,9 @@ nextflow.enable.dsl=2
 
 // Extract species names from the ncbi_genomes file
 Channel
-    .fromFilePairs(params.ncbi_genomes)
-    .splitText()
-    .map { line -> 
-        def columns = line.split('\t')
-        def species = columns[1]
-        species}
+    .fromPath(params.species_list)
+    .splitCsv(header: false, sep: '\t')
+    .map { columns -> columns[1] }
     .set { species }
 
 // Extracting BUSCO genes
@@ -30,7 +27,8 @@ process extractBuscoGenes {
         Rscript ${params.scripts_dir}/extract_busco_genes.R \\
             --max_missing_ingroup ${params.max_missing_ingroup} \\
             --max_missing_outgroup ${params.max_missing_outgroup} \\
-            --metadata ${params.protein_list}
+            --metadata ${params.species_list} \\
+            --wd ${params.out}
         """
 }
 
@@ -160,6 +158,7 @@ process runBuscoTrees {
             -bb 1000 \\
             -s ${input_trim_faa} \\
             -T 1 \\
+            -o "${params.outgroup}|\${gene}" \\
             --prefix \${gene}
         """
 }

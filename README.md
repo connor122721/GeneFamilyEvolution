@@ -12,16 +12,16 @@ This repository analyzes gene family dynamics in _Daphnia_ species, focusing on 
 ## Pipeline Overview
 ```mermaid
 graph TD
-    AA[Download NCBI Proteomes] --> A
+    AA[Download NCBI Genomes/Proteomes] --> A
     AA --> C
     A[Extract Longest Transcript] --> B[Annotate GO Terms]
-    C[Run BUSCO on Proteomes] --> G[Extract-Trim-Align and make BUSCO Gene Trees and Consensus Species-Tree]
-    A --> I[Run OrthoFinder on Longest Transcripts]
+    C[Run BUSCO on Proteomes] --> G[Extract/Trim/Align/Estimate BUSCO Gene Trees & Consensus Species-Tree]
+    A --> I[Run OrthoFinder]
     I --> J[Filter Gene Families]
-    J --> K[Run Gene Family Evolution CAFE5]
+    J --> K[Estimate Gene Family Evolution CAFE5]
     K --> L[GO Term Enrichment]
     I --> M[Run Selection Tests]
-    G --> P[Make Time-Calibrated Tree MCMCtree]
+    G --> P[Estimate Time-Calibrated Tree MCMCtree]
     P --> K
 ```
 
@@ -64,6 +64,22 @@ Ensure that the `nextflow.config` file is in the same directory as `main.nf` or 
 ## Notes
 - While I am using `apptainer run latest_image.sif` for most processes, you could modify the code to run `apptainer exec docker://image:latest` so you do not have to pull images. I am currently editing this feature so it is more user-friendly.
 - This is currently a work-in-progress project and I am learning best practices with NextFlow in general, any help or tips would be appreciated!
+
+### TimeTree Constraints
+- TimeTree constraints are used to calibrate the phylogenetic tree with divergence times obtained from the TimeTree database. These constraints help in estimating the divergence times between species accurately.
+- In the pipeline, the `makeConsensusMCMC` process includes the application of these constraints using the `mcmctree_prep.py` script. This script adds time constraints to the species tree based on known divergence times.
+
+#### Example: Time between _Daphnia magna_ and _Drosophila melanogaster_
+- The divergence time between _Daphnia magna_ and _Drosophila melanogaster_ is constrained between 474.8 and 530 million years.
+- This constraint is applied in the `makeConsensusMCMC` process as follows:
+  ```bash
+  python ${params.scripts_dir}/mcmctree_prep.py \
+      --left_species magna \
+      --right_species melanogaster \
+      --lower_bound 474.8 \
+      --upper_bound 530 \
+      --tree - \
+  ```
 
 ## License
 This project is licensed under the MIT License.

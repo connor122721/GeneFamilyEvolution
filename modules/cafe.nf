@@ -47,13 +47,13 @@ process runCAFE {
         cp ${hog_input} hog_gene_counts1.tsv 
         cp ${tree} mcmctree_busco_daphnia1.nwk 
         
-        # Orthogroups from OrthoFinder
+        # Run CAFE
         apptainer run ${params.sif_dir}/cafe5_20240415.sif \\
             cafe5 \\
             -i hog_gene_counts1.tsv \\
             -t mcmctree_busco_daphnia1.nwk \\
             --cores 16 \\
-            -I 1500 \\
+            -I 10000 \\
             ${cafe_settings}
         
         # Extract significant gene families
@@ -61,6 +61,8 @@ process runCAFE {
         grep "*" */*asr.tre >> Significant_trees.tre
         echo "end;">> Significant_trees.tre
         awk '\$2 < .05 {print \$0}' */*family_results.txt > Sig_at_p.05.txt
+        awk '\$2 < .01 {print \$0}' */*family_results.txt > Sig_at_p.01.txt
         mv Sig* r1*/
+        cp .command.log r1*/command.log
         """
 }

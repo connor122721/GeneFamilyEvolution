@@ -1,3 +1,5 @@
+
+// Get CIs from timetree.org! https://timetree.org/
 // Make consensus species tree and prep for MCMCtree
 process makeConsensusMCMC {
     
@@ -31,7 +33,7 @@ process makeConsensusMCMC {
         ~/phd_software/ASTER-1.15/bin/astral-pro \\
             -i busco_sco_genes.tre \\
             -R \\
-            --root "melanogaster" \\
+            --root ${params.outgroup} \\
             -o sco_species_astralpro
 
         # Make prep tree for MCMCtree
@@ -56,6 +58,30 @@ process makeConsensusMCMC {
             --right_species melanogaster \\
             --lower_bound 474.8 \\
             --upper_bound 530 \\
+            --tree - \\
+            | python ${params.scripts_dir}/mcmctree_prep.py \\
+            --left_species caenorhabditis \\
+            --right_species melanogaster \\
+            --lower_bound 552 \\
+            --upper_bound 941 \\
+            --tree - \\
+            | python ${params.scripts_dir}/mcmctree_prep.py \\
+            --left_species anopheles \\
+            --right_species melanogaster \\
+            --lower_bound 216 \\
+            --upper_bound 266 \\
+            --tree - \\
+            | python ${params.scripts_dir}/mcmctree_prep.py \\
+            --left_species artemia \\
+            --right_species magna \\
+            --lower_bound 365.1 \\
+            --upper_bound 492 \\
+            --tree - \\
+            | python ${params.scripts_dir}/mcmctree_prep.py \\
+            --left_species artemia \\
+            --right_species penaeus \\
+            --lower_bound 275 \\
+            --upper_bound 541 \\
             --tree - \\
             --add_header \\
             > sco_daphnia_mcmc_1.25.25.nwk

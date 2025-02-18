@@ -15,7 +15,8 @@ library(optparse)
 option_list <- list(
   make_option(c("--max_missing_ingroup"), type="integer", default=0, help="Maximum number of ingroup species that can be missing a BUSCO gene"),
   make_option(c("--max_missing_outgroup"), type="integer", default=2, help="Maximum number of outgroup species that can be missing a BUSCO gene"),
-  make_option(c("--metadata"), type="character", default="/project/berglandlab/connor/GeneFamilyEvolution/list.proteins", help="Metadata file")
+  make_option(c("--metadata"), type="character", default="/project/berglandlab/connor/GeneFamilyEvolution/list.proteins", help="Metadata file"),
+  make_option(c("--wd", "-w"), type="character", help="Path to output for nf-pipeline.")
 )
 
 opt <- parse_args(OptionParser(option_list=option_list))
@@ -23,26 +24,26 @@ opt <- parse_args(OptionParser(option_list=option_list))
 max_missing_ingroup <- opt$max_missing_ingroup
 max_missing_outgroup <- opt$max_missing_outgroup
 metadata <- opt$metadata
+wd <- opt$wd
 
 print(max_missing_ingroup)
 print(metadata)
 
 # Testing
-# max_missing_ingroup = 0
-# max_missing_outgroup = 2
-# metadata = "list.proteins"
+# max_missing_ingroup = 0; max_missing_outgroup = 0; metadata = "/project/berglandlab/connor/GeneFamilyEvolution/ncbi_genomes"; wd="/project/berglandlab/connor/GeneFamilyEvolution/output"
 
 # Files
 files.bus <- list.files(recursive = T, 
-          path="/project/berglandlab/connor/GeneFamilyEvolution/output", 
+          path=wd, 
           pattern = "full_table", 
           full.names = T)
 
 # Metadata
 meta <- fread(metadata, header=F) %>% 
   mutate(species = V2, 
-         group = V3) %>% 
-  select(species, group)
+         group = V3,
+         fasta = paste(wd, "/genomes/proteomes/", V2, ".protein.faa",sep="")) %>% 
+  select(species, group, fasta)
 
 # Read in busco files
 l <- lapply(files.bus, fread, skip=2, fill=TRUE, sep="\t")

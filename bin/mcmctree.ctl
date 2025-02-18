@@ -7,7 +7,7 @@
        seqtype = 2  * 0: nucleotides; 1:codons; 2:AAs
        usedata = 3    * 0: no data; 1:seq like; 2:use in.BV; 3: out.BV
          clock = 2    * 1: global clock; 2: independent rates; 3: correlated rates
-       RootAge = <5.1  * safe constraint on root age, used if no fossil for root.
+       RootAge = <9.1  * safe constraint on root age, used if no fossil for root.
 
          model = 0    * 0:JC69, 1:K80, 2:F81, 3:F84, 4:HKY85
          alpha = 0    * alpha for gamma rates at sites
